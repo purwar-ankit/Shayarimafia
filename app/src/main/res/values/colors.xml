@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="nightModeBackgroundColor">#303030</color>
+
+    <color name="colorLightBlueBackground">#A5D8F5</color>
+
+    <color name="optsy_dark_blue">#1b4571</color>
+    <color name="optsy_light_blue">#1298d9</color>
+    <color name="optsy_white">#ffffff</color>
+    <color name="optsy_hint_color">#52555c</color>
+    <color name="optsy_green">#a6c845</color>
+    <color name="beige_color">#F5F1DE</color>
+
+    <!-- brand color: orange -->
+ <!--   <color name="colorPrimary">#FF9800</color>
+    <color name="colorPrimaryDark">#F57C00</color>
+    <color name="colorPrimaryLight">#FFE0B2</color>
+    &lt;!&ndash; accent color: red &ndash;&gt;
+    <color name="colorAccent">#FF5252</color>-->
+    <!-- text color: white -->
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="textColorSecondary">#9E9E9E</color>
+    <!-- inverse text color: 87% black -->
+    <color name="textColorPrimaryInverse">#DE000000</color>
+    <color name="textColorSecondaryInverse">#9E9E9E</color>
+
+    <!-- alternative color palette -->
+    <color name="colorPrimaryInverse">#FF9800</color>
+    <color name="colorPrimaryDarkInverse">#202020</color>
+    <color name="colorAccentInverse">#FF5252</color>
+
+    <!--green-orange-->
+    <color name="primary_green">#4CAF50</color>
+    <color name="primary_dark_green">#388E3C</color>
+    <color name="primary_light_green">#C8E6C9</color>
+    <color name="accent_orange">#FF9800</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#B6B6B6</color>
+</resources>

@@ -1,0 +1,108 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/coordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:cardView="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:clickable="true"
+        cardView:cardCornerRadius="0dp"
+        cardView:cardElevation="@dimen/card_elevation_15dp"
+        cardView:cardUseCompatPadding="true">
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/cardRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/ivFavourite"
+                android:layout_width="@dimen/dimen_40dp"
+                android:layout_height="@dimen/dimen_40dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="@dimen/padding_16dp"
+                android:layout_marginRight="30dp"
+                android:padding="@dimen/padding_4dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/favorite_unselect"
+                android:tint="#FFB243" />
+
+            <!--   android:layout_below="@+id/topBarLayout"-->
+            <TextView
+                android:id="@+id/tvShayari"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/insideIvLayout"
+                android:layout_below="@+id/ivFavourite"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:maxLines="20"
+                android:paddingBottom="@dimen/padding_4dp"
+                android:paddingLeft="@dimen/padding_20dp"
+                android:paddingRight="@dimen/padding_30dp"
+                android:paddingTop="@dimen/padding_4dp"
+                android:scrollIndicators="top"
+                android:scrollbars="vertical"
+                android:text="description"
+                android:typeface="serif" />
+
+
+            <LinearLayout
+                android:id="@+id/insideIvLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="bottom"
+
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/padding_16dp">
+
+                <ImageView
+                    android:id="@+id/ivSpeak"
+                    android:layout_width="@dimen/dimen_40dp"
+                    android:layout_height="@dimen/dimen_40dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:padding="@dimen/padding_4dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/speak_orng"
+                    android:visibility="visible" />
+
+                <!--@android:drawable/ic_menu_share-->
+                <ImageView
+                    android:id="@+id/ivShare"
+                    android:layout_width="@dimen/dimen_40dp"
+                    android:layout_height="@dimen/dimen_40dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:padding="@dimen/padding_4dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/share_btn_selector"
+                    android:visibility="visible" />
+
+                <!--@drawable/ic_menu_copy_holo_light-->
+                <!--style="?android:borderlessButtonStyle"-->
+                <!--android:tint="#FFB243"-->
+                <ImageView
+                    android:id="@+id/ivCopy"
+                    android:layout_width="@dimen/dimen_40dp"
+                    android:layout_height="@dimen/dimen_40dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:padding="@dimen/padding_4dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/copy_btn_selector"
+
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+</android.support.design.widget.CoordinatorLayout>
