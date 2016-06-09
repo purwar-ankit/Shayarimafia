@@ -10,10 +10,6 @@ import com.android.volley.toolbox.Volley;
 
 import utils.LruBitmapCache;
 
-/**
- * Created by ankit.purwar on 6/8/2016.
- */
-
 public class AppController extends Application {
 
     public static final String TAG = AppController.class

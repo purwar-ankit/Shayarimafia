@@ -7,8 +7,15 @@ package utils;
 
 public class Constants {
 
-    public static String TAG = "ShayariMafia";
-    public static String categotiesUrl = "http://";
-    public static String shayariOfCatUrl = "http://";
+    public static final String APPLICATION_TAG = "ShayariMafia";
+
+    public static final boolean SUCCESS = true;
+    public static final boolean FAILURE = false;
+
+    public static final String CATEGORIES_URL = "http://";
+    public static final String SHAYARI_BY_CAT_URL = "http://";
+    public static final String SHAYARI_BY_ID = "http://";
+
+
 
 }
