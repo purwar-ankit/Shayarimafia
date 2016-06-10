@@ -1,6 +1,8 @@
 package utils;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -21,35 +23,45 @@ import mobinationapps.com.shayarimafia.AppController;
 
 public class Utility {
 
-    String tag_json_obj = "json_obj_req";
+    public static boolean checkNetworkConnectivity(Context context)
+    {
 
-    String url = "http://api.androidhive.info/volley/person_object.json";
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
+
+    }
+
+
+    public static void receiveJsonObj() {
+        String tag_json_obj = "json_obj_req";
+
+        String url = "http://api.androidhive.info/volley/person_object.json";
 
 /*    ProgressDialog pDialog = new ProgressDialog(this);
     pDialog.setMessage("Loading...");
     pDialog.show();*/
 
-    JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
-            url, null,
-            new Response.Listener<JSONObject>() {
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
+                url, null,
+                new Response.Listener<JSONObject>() {
 
-                @Override
-                public void onResponse(JSONObject response) {
-                    Log.d(Constants.APPLICATION_TAG, response.toString());
-                    //pDialog.hide();
-                }
-            }, new Response.ErrorListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d(Constants.APPLICATION_TAG, response.toString());
+                        //pDialog.hide();
+                    }
+                }, new Response.ErrorListener() {
 
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            VolleyLog.d(Constants.APPLICATION_TAG, "Error: " + error.getMessage());
-            // hide the progress dialog
-           // pDialog.hide();
-        }
-    });
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d(Constants.APPLICATION_TAG, "Error: " + error.getMessage());
+                // hide the progress dialog
+                // pDialog.hide();
+            }
+        });
 
 // Adding request to request queue
-   // AppController.getInstance().addToRequestQueue(jsonObjReq, tag_json_obj);
+        AppController.getInstance().addToRequestQueue(jsonObjReq, tag_json_obj);
 
-
+    }
 }
