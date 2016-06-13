@@ -2,18 +2,22 @@ package model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by ankit.purwar on 6/8/2016.
  */
 
 public class Shayari {
 
-@SerializedName("id")
+    @SerializedName("id")
     private int id;
     @SerializedName("content")
     private String content;
     @SerializedName("title")
     private String title;
+
+
 
     public Shayari() {
     }

@@ -3,6 +3,7 @@ package mobinationapps.com.shayarimafia;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,6 +15,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import model.Categories;
+import model.Shayari;
+import rest.ApiClient;
+import rest.ApiInterface;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -46,9 +62,63 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+
+        //gets all the categories from web service
+        getCategories(apiService);
+        //gets all the shayaris from webservice
+        getShayaries(apiService);
+
     }
 
-    //public void
+    public void getCategories(ApiInterface apiService) {
+        Call<List<Categories>> call = apiService.getAllCategories();
+        call.enqueue(new Callback<List<Categories>>() {
+
+            @Override
+            public void onResponse(Call<List<Categories>> call, Response<List<Categories>> response) {
+                Toast.makeText(MainActivity.this, "inside onResponse", Toast.LENGTH_SHORT).show();
+                Categories categories = new Categories();
+                List<Categories> categoriesList = response.body();
+
+                for (int j = 0; j < categoriesList.size(); j++) {
+                    Log.d("ankitTAG", " title:" + categoriesList.get(j).getCategory_title() + " id:" + categoriesList.get(j).getCategory_id()
+                            + " count :" + categoriesList.get(j).getCategory_count());
+                }
+
+                Log.d("ankitTAG", "size : " + response.body().size());
+                Log.d("ankitTAG", "values : " + response.body());
+            }
+
+            @Override
+            public void onFailure(Call<List<Categories>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "inside onFailure", Toast.LENGTH_SHORT).show();
+                Log.e("ankitTAG", t.toString());
+            }
+        });
+    }
+
+    public void getShayaries(ApiInterface apiService) {
+        Call<List<Shayari>> call = apiService.getAllShayaries();
+        call.enqueue(new Callback<List<Shayari>>() {
+            @Override
+            public void onResponse(Call<List<Shayari>> call, Response<List<Shayari>> response) {
+                List<Shayari> shayariList = response.body();
+                for (int i=0;i< shayariList.size(); i++){
+                    Log.d("ankitTAG", " title:" + shayariList.get(i).getTitle()+ " id:" + shayariList.get(i).getId()
+                            + " content :" + shayariList.get(i).getContent());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Shayari>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "inside onFailure", Toast.LENGTH_SHORT).show();
+                Log.e("ankitTAG", t.toString());
+            }
+        });
+
+    }
 
     @Override
     public void onBackPressed() {

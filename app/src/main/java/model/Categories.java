@@ -2,6 +2,8 @@ package model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by ankit.purwar on 6/8/2016.
  */
@@ -14,6 +16,8 @@ public class Categories {
     private int category_id;
     @SerializedName("category_count")
     private int category_count;
+
+    //private List<Shayari> shayariResult ;
 
     public Categories() {
     }
