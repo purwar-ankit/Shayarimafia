@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +13,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mobinationapps.com.shayarimafia.R;
+import model.Categories;
 import model.Shayari;
 
 /**
@@ -22,23 +26,22 @@ import model.Shayari;
 
 public class ShayariAdapter extends RecyclerView.Adapter<ShayariAdapter.ShayariViewHolder> {
 
-    private List<Shayari> shayaris;
+    private List<Shayari> shayariList = new ArrayList<Shayari>();
     private int rowLayout;
     private Context context;
     ViewGroup mViewGroup;
     private LayoutInflater inflater;
 
 
-    public ShayariAdapter(List<Shayari> shayaris, int rowLayout, Context context) {
-        this.shayaris = shayaris;
-        this.rowLayout = rowLayout;
+    public ShayariAdapter(List<Shayari> shayariList, Context context) {
+        this.shayariList = shayariList;
         this.context = context;
         inflater = LayoutInflater.from(context);
     }
 
     @Override
     public ShayariViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    mViewGroup = parent;
+        mViewGroup = parent;
         View view = inflater.inflate(R.layout.shayari_tile, parent, false);
         ShayariViewHolder shayariViewHolder = new ShayariViewHolder(view);
         return shayariViewHolder;
@@ -46,22 +49,18 @@ public class ShayariAdapter extends RecyclerView.Adapter<ShayariAdapter.ShayariV
 
     @Override
     public void onBindViewHolder(ShayariViewHolder holder, int position) {
-        /*
-        holder.movieTitle.setText(movies.get(position).getTitle());
-        holder.data.setText(movies.get(position).getReleaseDate());
-        */
-        holder.tvShayari.setText("shayari");
-
+        Shayari shayari = shayariList.get(position);
+        Log.d("ankitTAG", "onBindViewHolder" + shayari.getTitle());
+        holder.tvShayari.setText(Html.fromHtml(shayari.getTitle() +" "+shayari.getId() +" " +shayari.getContent()));
     }
 
     @Override
     public int getItemCount() {
-        return shayaris.size();
+        return shayariList.size();
     }
 
 
-    public static class ShayariViewHolder extends RecyclerView.ViewHolder{
-
+    public static class ShayariViewHolder extends RecyclerView.ViewHolder {
         protected ImageView ivAddToFavourite;
         protected TextView tvShayari;
         protected CardView cardView;
@@ -80,13 +79,11 @@ public class ShayariAdapter extends RecyclerView.Adapter<ShayariAdapter.ShayariV
             this.fabSpeak = (FloatingActionButton) itemView.findViewById(R.id.fabSpeak);
             this.fabCopy = (FloatingActionButton) itemView.findViewById(R.id.fabCopy);
 
-            this.ivSpeak = (ImageView)itemView.findViewById(R.id.ivSpeak);
-            this.ivCopy = (ImageView)itemView.findViewById(R.id.ivCopy);
-            this.ivShare = (ImageView)itemView.findViewById(R.id.ivShare);
+            this.ivSpeak = (ImageView) itemView.findViewById(R.id.ivSpeak);
+            this.ivCopy = (ImageView) itemView.findViewById(R.id.ivCopy);
+            this.ivShare = (ImageView) itemView.findViewById(R.id.ivShare);
         }
     }
-
-
 
 
 }

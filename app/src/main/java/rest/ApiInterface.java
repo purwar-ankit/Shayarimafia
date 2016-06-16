@@ -29,7 +29,6 @@ All Shayari:
 http://www.shayarimafia.com/app/all_shayari.php
 */
 
-//MovieResopnse is CAtegories and movi is shayari
 public interface ApiInterface {
 
     @GET("scategory")
@@ -37,11 +36,14 @@ public interface ApiInterface {
 
     @GET("all_shayari")
     Call<List<Shayari>> getAllShayaries();
-    //result - www.shayarimafia.com/app/all_shayari
 
-    @GET("Shayari/{id}")
-    Call<Categories> getShayariById(@Path("id") int id/*, @Query("api_key") String apiKey*/);
+    @GET("shayari.php")
+    Call<Shayari> getShayariById(@Query("sid") int id);
 
-    @GET("Shayari/{category_id}")
-    Call<Categories> getShayariByCategoy(@Path("category_id") String categoryId/*, @Query("category_id") int categoty_id*/);
+/*     "/api/42/getDummieContent?test=test"
+    @GET("/api/{id}/getDummieContent")
+    public DummieContent getDummieContent(@Path("id") Integer id, @Query("test") String strTest);*/
+
+    @GET("shayari_by_category.php")
+    Call<List<Shayari>> getShayariByCategoy(@Query("cat_id") int categoryId);
 }
