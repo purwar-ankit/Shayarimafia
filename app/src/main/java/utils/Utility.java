@@ -75,7 +75,15 @@ public class Utility {
 
     private static int currentApiVersion = Build.VERSION.SDK_INT;
 
-    public static void toShare(String text_to_share, Context context) {
+    public static void toShare(String text_to_share, Context context){
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, text_to_share);
+        sendIntent.setType("text/plain");
+        context.startActivity(Intent.createChooser(sendIntent, context.getResources().getText(R.string.share_title)));
+    }
+
+    public static void toShareExcludingFb(String text_to_share, Context context) {
         // get available share intents
         List<Intent> targets = new ArrayList<Intent>();
         Intent template = new Intent(Intent.ACTION_SEND);
@@ -160,7 +168,7 @@ public class Utility {
             selectedTypeface = Typeface.SANS_SERIF;
         } else if (quoteTypeface.equalsIgnoreCase(context.getResources().getString(R.string.monospace))) {
             selectedTypeface = Typeface.MONOSPACE;
-            ;
+
         }
         return selectedTypeface;
 

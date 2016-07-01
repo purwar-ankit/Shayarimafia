@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--<LinearLayout-->
+    <!--android:id="@+id/linearLay"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:orientation="vertical">-->
+
+    <TextView
+        android:id="@+id/tvCatTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:padding="@dimen/padding_4dp"
+        android:text="title frag cat"
+        android:textSize="@dimen/text_size_18"
+        android:textStyle="italic"
+        android:typeface="serif"
+        android:visibility="visible" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvCatTitle"
+        android:scrollbars="vertical" />
+
+    <!-- android:paddingLeft="40dp"
+     android:paddingRight="40dp"-->
+
+    <!-- </LinearLayout>-->
+
+
+</RelativeLayout>

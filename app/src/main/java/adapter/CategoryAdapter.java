@@ -1,6 +1,9 @@
 package adapter;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,7 +12,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +34,16 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private Context context;
     ViewGroup mViewGroup;
     private LayoutInflater inflater;
+    ProgressDialog pDialog;
 
     public CategoryAdapter(List<Categories> categories, Context context) {
         this.categoriesList = categories;
         this.context = context;
         this.inflater = LayoutInflater.from(context);
-
+        pDialog = new ProgressDialog(context);
+        pDialog.setCancelable(true);
+        pDialog.setMessage("Loading...");
+        pDialog.show();
     }
 
     @Override
@@ -46,10 +55,35 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     }
 
     @Override
-    public void onBindViewHolder(CategoryViewHolder holder, int position) {
+    public void onBindViewHolder(final CategoryViewHolder holder, int position) {
         final Categories categories = categoriesList.get(position);
         Log.d("ankitTAG", "onBindViewHolder" + categories.getCategory_title());
+        Log.d("ankitTAGImg","img_url: "+categories.getImg_url());
         holder.tvCatName.setText(categories.getCategory_title() +" " +categories.getCategory_count());
+        Picasso.with(context).load(categories.getImg_url())
+                .placeholder(R.drawable.img3)
+                .resize(200,200).into(holder.ivCatIcon);
+        pDialog.hide();
+       /* Picasso.with(context).load(categories.getImg_url())
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        holder.ivCatIcon.setImageBitmap(bitmap);
+                        pDialog.hide();
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                        pDialog.show();
+
+
+                    }
+                });*/
     }
 
     @Override
@@ -59,14 +93,14 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     public class CategoryViewHolder extends RecyclerView.ViewHolder {
         TextView tvCatName;
-        ImageView tvCatIcon;
+        ImageView ivCatIcon;
         RelativeLayout rlCatTileLayerLayout;
 
         public CategoryViewHolder(View itemView) {
             super(itemView);
-            this.rlCatTileLayerLayout = (RelativeLayout)itemView.findViewById(R.id.rlCatTileLayerLayout);
+            //this.rlCatTileLayerLayout = (RelativeLayout)itemView.findViewById(R.id.rlCatTileLayerLayout);
             this.tvCatName = (TextView) itemView.findViewById(R.id.tvCatName);
-            this.tvCatIcon = (ImageView) itemView.findViewById(R.id.ivCatIcon);
+            this.ivCatIcon = (ImageView) itemView.findViewById(R.id.ivCatIcon);
         }
     }
 }

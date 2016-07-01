@@ -1,5 +1,8 @@
 package model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -8,7 +11,7 @@ import java.util.List;
  * Created by ankit.purwar on 6/8/2016.
  */
 
-public class Shayari {
+public class Shayari implements Parcelable {
 
     @SerializedName("id")
     private int id;
@@ -27,6 +30,24 @@ public class Shayari {
         this.content = content;
         this.title = title;
     }
+
+    protected Shayari(Parcel in) {
+        id = in.readInt();
+        content = in.readString();
+        title = in.readString();
+    }
+
+    public static final Creator<Shayari> CREATOR = new Creator<Shayari>() {
+        @Override
+        public Shayari createFromParcel(Parcel in) {
+            return new Shayari(in);
+        }
+
+        @Override
+        public Shayari[] newArray(int size) {
+            return new Shayari[size];
+        }
+    };
 
     public int getId() {
         return id;
@@ -50,5 +71,17 @@ public class Shayari {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(title);
+        dest.writeString(content);
+        dest.writeInt(id);
     }
 }

@@ -9,15 +9,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="0dp"
+        android:background="@drawable/selector_rv_row"
         android:clickable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        cardView:cardBackgroundColor="#F5F1DE"
         cardView:cardCornerRadius="0dp"
         cardView:cardElevation="@dimen/card_elevation_15dp"
         cardView:cardUseCompatPadding="true">
 
-        <!--  android:foreground="?android:attr/selectableItemBackground"-->
-        <!--cardView:cardBackgroundColor="#F5F1DE"-->
-        <!--    android:background="@drawable/selector_rv_row"
-    -->
         <RelativeLayout
             android:id="@+id/cardRelativeLayout"
             android:layout_width="match_parent"
@@ -49,6 +48,8 @@
                 android:paddingRight="@dimen/padding_8dp"
                 android:paddingTop="@dimen/padding_8dp"
                 android:text="description"
+                android:textColor="@android:color/background_dark"
+                android:textSize="@dimen/text_size_18"
                 android:typeface="serif" />
 
             <LinearLayout
@@ -98,9 +99,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:src="@drawable/share_dark"
-
                         android:visibility="gone" />
-
                     <!--@drawable/ic_menu_copy_holo_light-->
                     <android.support.design.widget.FloatingActionButton
                         android:id="@+id/fabCopy"
@@ -108,9 +107,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:src="@drawable/copy_dark"
-
                         android:visibility="gone" />
-
                 </LinearLayout>
 
 
@@ -129,20 +126,18 @@
                     android:id="@+id/ivSpeak"
                     android:layout_width="@dimen/dimen_40dp"
                     android:layout_height="@dimen/dimen_40dp"
-                    android:layout_weight="1"
 
                     android:clickable="true"
                     android:padding="@dimen/padding_4dp"
                     android:scaleType="centerInside"
                     android:src="@drawable/speak_orng"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
 
                 <!--@android:drawable/ic_menu_share-->
                 <ImageView
                     android:id="@+id/ivShare"
                     android:layout_width="@dimen/dimen_40dp"
                     android:layout_height="@dimen/dimen_40dp"
-                    android:layout_weight="1"
                     android:clickable="true"
                     android:padding="@dimen/padding_4dp"
                     android:scaleType="centerInside"
@@ -154,7 +149,7 @@
                     android:id="@+id/ivCopy"
                     android:layout_width="@dimen/dimen_40dp"
                     android:layout_height="@dimen/dimen_40dp"
-                    android:layout_weight="1"
+                    android:layout_marginLeft="14dp"
                     android:clickable="true"
                     android:padding="@dimen/padding_4dp"
                     android:scaleType="fitCenter"

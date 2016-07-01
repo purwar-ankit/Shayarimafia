@@ -2,13 +2,24 @@ package mobinationapps.com.shayarimafia;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -19,6 +30,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,16 +53,27 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static mobinationapps.com.shayarimafia.R.id.ivCatIcon;
+import static mobinationapps.com.shayarimafia.R.id.textView;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     RecyclerView rvCategoryView;
-    List<Categories> categoriesList;
-    List<Shayari> shayariList;
+    // List<Categories> categoriesList;
+    ArrayList<Shayari> shayariList;
+    ArrayList<Categories> categoriesList;
     List<Shayari> shayariByCatList;
     CategoryAdapter categoryAdapter;
     ShayariAdapter shayariAdapter;
     ProgressDialog pDialog;
+    ShayariFragment shayariFragment;
+    FragmentManager fm;
+    Fragment fragment = null;
+    String catTitle;
+    String catImgUrl;
+    ImageView ivTransition;
+    TextView tvTransition;
 
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -65,7 +89,24 @@ public class MainActivity extends AppCompatActivity
         shayariList = new ArrayList<Shayari>();
 
         rvCategoryView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        rvCategoryView.setHasFixedSize(true);
         rvCategoryView.setLayoutManager(new LinearLayoutManager(this));
+
+      /*  rvCategoryView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        DividerItemDecoration decoration = new DividerItemDecoration(5);
+        rvCategoryView.addItemDecoration(decoration);*/
+
+        rvCategoryView.setHasFixedSize(true);
+        rvCategoryView.setItemViewCacheSize(20);
+        rvCategoryView.setDrawingCacheEnabled(true);
+        rvCategoryView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_AUTO);
+
+        View view = rvCategoryView.getChildAt(0);
+        if(view != null && rvCategoryView.getChildAdapterPosition(view) == 0)  {
+            view.setTranslationY(-view.getTop() / 2);// or use view.animate().translateY();
+        }
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -87,29 +128,16 @@ public class MainActivity extends AppCompatActivity
 
         final ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
 
+        fm = getSupportFragmentManager();
+//        shayariFragment = (ShayariFragment) fm.findFragmentById(R.id.container_body);
+
+     /*   fragment = new CategoryFragment();
+
+        replaceFrag(fragment);*/
+
         getCategories(apiService);
-        //getShayaries(apiService);
-        // getShayariByCatId(apiService,7);
-       // getShayariById(apiService, 253);
 
-   /*     rvCategoryView.addOnItemTouchListener(new CategoryRecyclerTouchListener(MainActivity.this, rvCategoryView,
-                new CategoryClickListener() {
-                    @Override
-                    public void onClick(View view, int position) {
-                        RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.rlCatTileLayerLayout);
-                        Toast.makeText(MainActivity.this, "calling getShayaris()", Toast.LENGTH_SHORT).show();
-                        getShayaries(apiService);
 
-                        getShayariByCatId(apiService, );
-
-                    }
-
-                    @Override
-                    public void onLongClick(View view, int position) {
-
-                    }
-                }));
-*/
     }
 
     public static interface CategoryClickListener {
@@ -161,9 +189,10 @@ public class MainActivity extends AppCompatActivity
 
 
     public void getCategories(final ApiInterface apiService) {
-        pDialog = new ProgressDialog(this);
+        pDialog = new ProgressDialog(this,R.style.MyTheme);
         pDialog.setCancelable(false);
-        pDialog.setMessage("Loading...");
+       // pDialog.setMessage("Loading...");
+        pDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
         pDialog.show();
         Call<List<Categories>> call = apiService.getAllCategories();
         call.enqueue(new Callback<List<Categories>>() {
@@ -175,11 +204,19 @@ public class MainActivity extends AppCompatActivity
                     categories.setCategory_id(response.body().get(j).getCategory_id());
                     categories.setCategory_count(response.body().get(j).getCategory_count());
                     categories.setCategory_title(response.body().get(j).getCategory_title());
+                    categories.setImg_url(response.body().get(j).getImg_url());
                     categoriesList.add(categories);
                 }
                 for (int i = 0; i < categoriesList.size(); i++) {
                     Log.d("ankitTAGreversed", "title : " + categoriesList.get(i).getCategory_title());
                 }
+
+                fragment = new CategoryFragment();
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArrayList("categoryArrayList", categoriesList);
+                fragment.setArguments(bundle);
+                //  pDialog.hide();
+                //replaceFrag(fragment);
                 categoryAdapter = new CategoryAdapter(categoriesList, MainActivity.this);
                 rvCategoryView.setAdapter(categoryAdapter);
                 pDialog.hide();
@@ -187,11 +224,15 @@ public class MainActivity extends AppCompatActivity
                         new CategoryClickListener() {
                             @Override
                             public void onClick(View view, int position) {
-                                RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.rlCatTileLayerLayout);
                                 Toast.makeText(MainActivity.this, "calling getShayaris()", Toast.LENGTH_SHORT).show();
-                                //getShayaries(apiService);
-                                getShayariByCatId(apiService,categoriesList.get(position).getCategory_id() );
+                                catTitle = categoriesList.get(position).getCategory_title();
+                                catImgUrl = categoriesList.get(position).getImg_url();
+                                getShayariByCatId(apiService, categoriesList.get(position).getCategory_id(), position);
+
+                                ivTransition = (ImageView)view.findViewById(R.id.ivCatIcon);
+                                tvTransition = (TextView)view.findViewById(R.id.tvCatName);
                             }
+
                             @Override
                             public void onLongClick(View view, int position) {
                             }
@@ -264,33 +305,48 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    public void getShayariByCatId(ApiInterface apiService, int catID) {
+    public void getShayariByCatId(ApiInterface apiService, int catID, final int position) {
 
         Log.d("ankitTAG", "getShayariById");
-        pDialog = new ProgressDialog(this);
-        pDialog.setCancelable(true);
-        pDialog.setMessage("Loading...");
+        //pDialog = new ProgressDialog(this);
+       // pDialog.setCancelable(true);
+        //pDialog.setMessage("Loading...");
+
+        pDialog = new ProgressDialog(this,R.style.MyTheme);
+        pDialog.setCancelable(false);
+        // pDialog.setMessage("Loading...");
+        pDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
+
         pDialog.show();
         Call<List<Shayari>> call = apiService.getShayariByCategoy(catID);
         call.enqueue(new Callback<List<Shayari>>() {
+
             @Override
             public void onResponse(Call<List<Shayari>> call, Response<List<Shayari>> response) {
-
                 for (int j = 0; j < response.body().size(); j++) {
                     Shayari shayari = new Shayari();
                     shayari.setContent(response.body().get(j).getContent());
                     shayari.setId(response.body().get(j).getId());
                     shayari.setTitle(response.body().get(j).getTitle());
-                    //  Log.d("ankitTAG", "size : " + categories.getCategory_title());
                     shayariList.add(shayari);
                 }
                 for (int i = 0; i < shayariList.size(); i++) {
                     Log.d("ankitTAGreversed", "title : " + shayariList.get(i).getTitle());
                 }
-                shayariAdapter = new ShayariAdapter(shayariList, MainActivity.this);
-                rvCategoryView.setAdapter(shayariAdapter);
-                pDialog.hide();
 
+                Bitmap bitmap = ((BitmapDrawable)ivTransition.getDrawable()).getBitmap();
+                shayariFragment = new ShayariFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("catTitle", catTitle);
+                bundle.putString("catImgUrl", catImgUrl);
+                bundle.putInt("catTransitionNamePos", position);
+                bundle.putParcelable("bitmap", bitmap);
+                bundle.putParcelableArrayList("shayariArrayList", shayariList);
+
+                //bundle.putString("categoryName", categoriesList.get();
+                shayariFragment.setArguments(bundle);
+                pDialog.hide();
+                replaceFrag(shayariFragment, position);
             }
 
             @Override
@@ -300,6 +356,67 @@ public class MainActivity extends AppCompatActivity
                 pDialog.hide();
             }
         });
+    }
+
+    private void replaceFrag(Fragment fragment, int position) {
+        if (fragment != null) {
+            // FragmentManager fragmentManager = getSupportFragmentManager();
+           /* FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.addSharedElement(tvTransition , getString(R.string.category_title));
+            fragmentTransaction.replace(R.id.container_body, fragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();*/
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // Inflate transitions to apply
+
+                Toast.makeText(this, "inside if", Toast.LENGTH_SHORT).show();
+
+                Transition changeTransform = TransitionInflater.from(this).
+                        inflateTransition(R.transition.change_image_transform);
+                Transition explodeTransform = TransitionInflater.from(this).
+                        inflateTransition(android.R.transition.explode);
+
+                // Setup exit transition on first fragment
+                fragment.setSharedElementReturnTransition(changeTransform);
+                fragment.setExitTransition(explodeTransform);
+
+                // Add second fragment by replacing first
+                tvTransition.setTransitionName(getString(R.string.category_title)+position);
+                ivTransition.setTransitionName(getString(R.string.category_img)+position);
+
+
+
+                Pair<View, String> pair1 = Pair.create((View)tvTransition, getString(R.string.category_title)+position);
+                Pair<View, String> pair2 = Pair.create((View)ivTransition, getString(R.string.category_img)+position);
+
+                Log.d("transitionNameSent", getString(R.string.category_title)+position + "tvTransition.getTransitionName(): " +tvTransition.getTransitionName());
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                fragmentTransaction.addSharedElement(tvTransition , getString(R.string.category_title)+position);
+                fragmentTransaction.addSharedElement(ivTransition,getString(R.string.category_img)+position);
+                fragmentTransaction.replace(R.id.container_body, fragment);
+                fragmentTransaction.addToBackStack("transaction");
+                fragmentTransaction.commit();
+            }
+            else {
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+               // fragmentTransaction.addSharedElement(tvTransition , getString(R.string.category_title));
+                fragmentTransaction.replace(R.id.container_body, fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+
+
+
+
+
+
+            if(!shayariList.isEmpty() || !shayariList.equals(null))
+            {
+                shayariList = new ArrayList<Shayari>();
+            }
+
+        }
     }
 
     @Override

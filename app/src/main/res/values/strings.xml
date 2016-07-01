@@ -1,12 +1,8 @@
 <resources>
     <string name="app_name"><!--शायरी माफिया-->ShayariMafia</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="action_settings">Settings</string>
-
-
     <string name="cancel">Cancel</string>
     <string name="set">Set</string>
 
@@ -41,5 +37,8 @@
     <string name="select_category">Select Category..</string>
     <string name="enter_quote_hint">Enter Quote here</string>
     <string name="btn_save">Save</string>
+
+    <string name="category_img">categoryIcon</string>
+    <string name="category_title">categoryTitle</string>
 
 </resources>
