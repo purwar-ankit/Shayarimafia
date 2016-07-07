@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,10 @@ import java.util.List;
 import mobinationapps.com.shayarimafia.R;
 import model.Categories;
 import model.Shayari;
+import utils.SharedPreference;
 import utils.Utility;
+
+import static android.R.attr.button;
 
 /**
  * Created by ankit.purwar on 6/10/2016.
@@ -34,12 +38,15 @@ public class ShayariAdapter extends RecyclerView.Adapter<ShayariAdapter.ShayariV
     ViewGroup mViewGroup;
     private LayoutInflater inflater;
 
+    SharedPreference sharedPreference;
+
 
     public ShayariAdapter(List<Shayari> shayariList, Context context) {
         this.shayariList = shayariList;
         this.context = context;
         inflater = LayoutInflater.from(context);
-        Log.d("atShayariAdapter", shayariList.get(2).getContent());
+        sharedPreference = new SharedPreference();
+
     }
 
     @Override
@@ -51,10 +58,45 @@ public class ShayariAdapter extends RecyclerView.Adapter<ShayariAdapter.ShayariV
     }
 
     @Override
-    public void onBindViewHolder(final ShayariViewHolder holder, int position) {
-        Shayari shayari = shayariList.get(position);
+    public void onBindViewHolder(final ShayariViewHolder holder, final int position) {
+        final Shayari shayari = shayariList.get(position);
         Log.d("ankitTAG", "onBindViewHolder" + shayari.getTitle());
         holder.tvShayari.setText(Html.fromHtml(shayari.getContent()));
+
+         /*If a product exists in shared preferences then set heart_red drawable
+         * and set a tag*/
+        if (checkFavoriteItem(shayari)) {
+            holder.ivAddToFavourite.setImageResource(R.drawable.favorite);
+            holder.ivAddToFavourite.setTag("red");
+        } else {
+            holder.ivAddToFavourite.setImageResource(R.drawable.favorite_unselect);
+            holder.ivAddToFavourite.setTag("grey");
+        }
+
+        holder.ivAddToFavourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String tag = holder.ivAddToFavourite.getTag().toString();
+
+                if (tag.equalsIgnoreCase("grey")) {
+                    sharedPreference.addFavorite(context, shayariList.get(position));
+                    Toast.makeText(context,
+                            "fav added",
+                            Toast.LENGTH_SHORT).show();
+
+                    holder.ivAddToFavourite.setTag("red");
+                    holder.ivAddToFavourite.setImageResource(R.drawable.favorite);
+                } else {
+                    sharedPreference.removeFavorite(context, shayariList.get(position));
+                    Toast.makeText(context,
+                            "removed fav",
+                            Toast.LENGTH_SHORT).show();
+
+                    holder.ivAddToFavourite.setTag("grey");
+                    holder.ivAddToFavourite.setImageResource(R.drawable.favorite_unselect);
+                     }
+            }
+        });
 
        /* if (position % 2 == 1) {
             holder.cardRelativeLayout.setBackgroundColor(Color.parseColor("#820000"));
@@ -72,12 +114,43 @@ public class ShayariAdapter extends RecyclerView.Adapter<ShayariAdapter.ShayariV
             @Override
             public void onClick(View v) {
                 Utility.toShare(holder.tvShayari.getText().toString(), context);
-
             }
         });
     }
 
 
+    /*Checks whether a particular shayari exists in SharedPreferences*/
+    public boolean checkFavoriteItem(Shayari checkShayari) {
+        // Log.d("sharedPrefs", "inside chk fav");
+        boolean check = false;
+        ArrayList<Shayari> favorites = sharedPreference.getFavorites(context);
+
+        //Log.d("sharedPrefs", "fav list size is: "+favorites.size());
+
+        if(favorites != null){
+            for(int i=0; i< favorites.size(); i++){
+                if (favorites.get(i).getTitle().equalsIgnoreCase(checkShayari.getTitle())){
+                    Log.d("sharedPrefs", "inside check if check is : " + check);
+                    check = true;
+                    break;
+                }
+            }
+        }
+
+    /*    if (favorites != null) {
+            for (Shayari shayari : favorites) {
+                //  Log.d("sharedPrefs"," shayari title: "+ shayari.getTitle());
+                Log.d("sharedPrefs", " shayari : " + shayari + " checkShayari: " + checkShayari);
+                if (shayari.equals(checkShayari)) {
+                    Log.d("sharedPrefs", "inside check if check is : " + check);
+                    check = true;
+                    break;
+                }
+            }
+        }*/
+         Log.d("sharedPrefs","check is : "+ check);
+        return check;
+    }
 
     @Override
     public int getItemCount() {

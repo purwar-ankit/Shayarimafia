@@ -84,4 +84,10 @@ public class Shayari implements Parcelable {
         dest.writeString(content);
         dest.writeInt(id);
     }
+
+    @Override
+    public String toString() {
+        return "Shayari [id=" +id+ ", title=" + title + ", content="
+                + content + "]";
+    }
 }

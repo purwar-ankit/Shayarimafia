@@ -2,6 +2,7 @@ package utils;
 
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,8 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Parcelable;
 import android.text.Html;
@@ -37,6 +40,42 @@ import mobinationapps.com.shayarimafia.R;
  */
 
 public class Utility {
+
+
+    /**
+     * Check whether Internet Connection is available or not(e.g., connected or
+     * Disconnected)
+     *
+     * @param context
+     *            : Context of current Class
+     * @return Boolean: true if connected false otherwise.
+     */
+    public static final boolean isNetWork(Context context) {
+
+        ConnectivityManager conMgr = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        /** to get info of WIFI N/W : */
+        final android.net.NetworkInfo wifi = conMgr
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        /** to get info of mobile N/W : */
+        final android.net.NetworkInfo mobile = conMgr
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+        if ((wifi.isAvailable() && wifi.isConnected())
+                || (mobile.isAvailable() && mobile.isConnected())) {
+            Log.i("Is Net work?", "isNetWork:in 'isNetWork_if' is N/W Connected:"
+                    + NetworkInfo.State.CONNECTED);
+            return true;
+        } else if (conMgr.getActiveNetworkInfo() != null
+                && conMgr.getActiveNetworkInfo().isAvailable()
+                && conMgr.getActiveNetworkInfo().isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
 
     public static boolean checkNetworkConnectivity(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
@@ -190,5 +229,22 @@ public class Utility {
 
         }
         return stringToReturn;
+    }
+
+    public static void rateUs(Context context)
+    {
+        Uri uri = Uri.parse("market://details?id=" + context.getPackageName());
+        Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+        // To count with Play market backstack, After pressing back button,
+        // to taken back to our application, we need to add following flags to intent.
+        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET |
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        try {
+            context.startActivity(goToMarket);
+        } catch (ActivityNotFoundException e) {
+            context.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id=" + context.getPackageName())));
+        }
     }
 }

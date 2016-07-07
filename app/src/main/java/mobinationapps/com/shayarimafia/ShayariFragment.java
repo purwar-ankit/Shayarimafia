@@ -6,9 +6,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +39,8 @@ import rest.ApiInterface;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import utils.BlurBuilder;
+import utils.SharedPreference;
 
 /**
  * Created by ankit.purwar on 6/16/2016.
@@ -44,17 +49,22 @@ import retrofit2.Response;
 public class ShayariFragment extends Fragment {
 
     RelativeLayout rlFragmentShayriLay;
+    CoordinatorLayout clFragmentTestLay;
+    ImageView header;
     TextView tvTitle;
     RecyclerView rvShayari;
     ShayariAdapter shayariAdapter;
     ProgressDialog pDialog;
     final ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
     ArrayList<Shayari> shayariList;
+    SharedPreference sharedPreference;
+    String transitionStr;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         shayariList = new ArrayList<Shayari>();
+        sharedPreference = new SharedPreference();
     }
 
     @Nullable
@@ -66,16 +76,25 @@ public class ShayariFragment extends Fragment {
         String catTitle = getArguments().getString("catTitle");
         String catImgUrl = getArguments().getString("catImgUrl");
         Bitmap bitmap = getArguments().getParcelable("bitmap");
+
+        Bitmap blurredBitmap = BlurBuilder.blur( getActivity(), bitmap );
+
+        //view.setBackgroundDrawable( new BitmapDrawable( getResources(), blurredBitmap ) );
+
         int position = getArguments().getInt("catTransitionNamePos");
-        View rootView = inflater.inflate(R.layout.fragment_shayari, container, false);
+        View rootView = inflater.inflate(R.layout.test/*fragment_shayari*/, container, false);
         tvTitle = (TextView) rootView.findViewById(R.id.tvCatTitle);
-        rlFragmentShayriLay = (RelativeLayout) rootView.findViewById(R.id.rlFragmentShayriLay);
+       // rlFragmentShayriLay = (RelativeLayout) rootView.findViewById(R.id.rlFragmentShayriLay);
+        clFragmentTestLay = (CoordinatorLayout)rootView.findViewById(R.id.clFragmentTestLay);
+        header = (ImageView)rootView.findViewById(R.id.header);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Log.d("transitionNameRecvd", getString(R.string.category_title) + position);
-            tvTitle.setTransitionName(getString(R.string.category_title) + position);
-            rlFragmentShayriLay.setTransitionName(getString(R.string.category_img) + position);
+            tvTitle.setTransitionName(transitionStr/*getString(R.string.category_title) + position*/);
+           // rlFragmentShayriLay.setTransitionName(getString(R.string.category_img) + position);
+            clFragmentTestLay.setTransitionName(getString(R.string.category_img) + position);
+            header.setTransitionName(getString(R.string.category_img) + position);
             Log.d("transitionNameRecvd", "getTransitionName(): " + tvTitle.getTransitionName());
         }
         rvShayari = (RecyclerView) rootView.findViewById(R.id.rvShayari);
@@ -83,32 +102,14 @@ public class ShayariFragment extends Fragment {
         tvTitle.setText(catTitle);
         int sdk = android.os.Build.VERSION.SDK_INT;
         if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            rlFragmentShayriLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), bitmap));
+            //rlFragmentShayriLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), bitmap));
+            clFragmentTestLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), blurredBitmap));
+            header.setImageBitmap(bitmap);
         } else {
-            rlFragmentShayriLay.setBackground(new BitmapDrawable(getActivity().getResources(), bitmap));
-            //return new BitmapDrawable(context.getResources(), canvasBitmap);
+//          //  rlFragmentShayriLay.setBackground(new BitmapDrawable(getActivity().getResources(), bitmap));
+            clFragmentTestLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), blurredBitmap));
+            header.setImageBitmap(bitmap);
         }
-        /*Picasso.with(getActivity()).load(catImgUrl).into(new Target() {
-            int sdk = android.os.Build.VERSION.SDK_INT;
-            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                    rlFragmentShayriLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), bitmap));
-                } else {
-                    rlFragmentShayriLay.setBackground(new BitmapDrawable(getActivity().getResources(), bitmap));
-                    //return new BitmapDrawable(context.getResources(), canvasBitmap);
-                }
-            }
-
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-            }
-        });*/
 
         rvShayari.invalidate();
         shayariAdapter = new ShayariAdapter(shayariList, getActivity());
@@ -121,16 +122,50 @@ public class ShayariFragment extends Fragment {
                     @Override
                     public void onClick(View view, int position) {
                         Toast.makeText(getActivity(), shayariList.get(position).getTitle(), Toast.LENGTH_SHORT).show();
-
                     }
 
                     @Override
                     public void onLongClick(View view, int position) {
+
+                       /* ImageView ivFav = (ImageView)view.findViewById(R.id.ivFavourite);
+                        String tag =  ivFav.getTag().toString();
+                        if (tag.equalsIgnoreCase("grey")) {
+                            sharedPreference.addFavorite(getActivity(), shayariList.get(position));
+                            Toast.makeText(getActivity(),
+                                    "fav added",
+                                    Toast.LENGTH_SHORT).show();
+
+                            ivFav.setTag("red");
+                            ivFav.setImageResource(R.drawable.favorite);
+                        } else {
+                            sharedPreference.removeFavorite(getActivity(), shayariList.get(position));
+                            ivFav.setTag("grey");
+                            ivFav.setImageResource(R.drawable.favorite_unselect);
+                            Toast.makeText(getActivity(),
+                                    "removed fav",
+                                    Toast.LENGTH_SHORT).show();
+                        }*/
                     }
                 }));
 
+        /*SharedPreference sharedPreference = new SharedPreference();
+        Todo: //check for null shared preference
+        List<Shayari> favorites = sharedPreference.getFavorites(getActivity());
+        if(!favorites.isEmpty() || !favorites.equals(null)){
+            for (int i=0;i<favorites.size();i++)
+            {
+                Toast.makeText(getActivity(), favorites.get(i).getTitle(),Toast.LENGTH_SHORT).show();
+            }
+        }*/
         return rootView;
+    }
 
+    public void setTransitionNameStr(String transStr){
+        transitionStr = transStr;
+    }
+
+    public TextView getTextView(){
+        return tvTitle;
     }
 
     public static interface ShayariClickListener {
