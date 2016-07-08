@@ -2,6 +2,8 @@ package mobinationapps.com.shayarimafia;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -49,6 +51,8 @@ public class CategoryFragment extends Fragment {
     FragmentManager fm;
     ImageView ivTransition;
     TextView tvTransition;
+    String catTitle;
+    int catId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -161,7 +165,8 @@ public class CategoryFragment extends Fragment {
                             public void onClick(View view, int position) {
                                 Toast.makeText(getActivity(), "calling getShayaris()", Toast.LENGTH_SHORT).show();
                                // getShayariByCatId(apiService, categoriesList.get(position).getCategory_id());
-
+                                catTitle = categoriesList.get(position).getCategory_title();
+                                catId = categoriesList.get(position).getCategory_id();
                                 ivTransition = (ImageView) view.findViewById(R.id.ivCatIcon);
                                 tvTransition = (TextView) view.findViewById(R.id.tvCatName);
 
@@ -170,6 +175,19 @@ public class CategoryFragment extends Fragment {
                                 transitionMap.put(getString(R.string.category_img) + position, ivTransition);
 
                                 ShayariFragment shayariFragment = new ShayariFragment();
+                                Bitmap bitmap = ((BitmapDrawable) ivTransition.getDrawable()).getBitmap();
+
+                                Bundle bundle = new Bundle();
+                                bundle.putString("catTitle", catTitle);
+                                bundle.putInt("catId", catId);
+                              //  bundle.putString("catImgUrl", catImgUrl);
+                                bundle.putInt("catTransitionNamePos", position);
+                                bundle.putParcelable("bitmap", bitmap);
+                               // bundle.putParcelableArrayList("shayariArrayList", shayariList);
+
+                                //bundle.putString("categoryName", categoriesList.get();
+                                shayariFragment.setArguments(bundle);
+
                                 Utility.replaceFrag(getActivity(),shayariFragment,position,fm,transitionMap);
 
                             }

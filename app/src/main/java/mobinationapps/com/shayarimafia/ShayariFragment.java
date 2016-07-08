@@ -72,14 +72,15 @@ public class ShayariFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         Toast.makeText(getActivity(), "at fragment", Toast.LENGTH_SHORT).show();
-        shayariList = getArguments().getParcelableArrayList("shayariArrayList");
+        //shayariList = getArguments().getParcelableArrayList("shayariArrayList");
         String catTitle = getArguments().getString("catTitle");
-        String catImgUrl = getArguments().getString("catImgUrl");
+     //   String catImgUrl = getArguments().getString("catImgUrl");
         Bitmap bitmap = getArguments().getParcelable("bitmap");
 
         Bitmap blurredBitmap = BlurBuilder.blur( getActivity(), bitmap );
 
         int position = getArguments().getInt("catTransitionNamePos");
+        int catId  = getArguments().getInt("catId");
         View rootView = inflater.inflate(R.layout.test/*fragment_shayari*/, container, false);
         tvTitle = (TextView) rootView.findViewById(R.id.tvCatTitle);
        // rlFragmentShayriLay = (RelativeLayout) rootView.findViewById(R.id.rlFragmentShayriLay);
@@ -110,10 +111,10 @@ public class ShayariFragment extends Fragment {
         }
 
         rvShayari.invalidate();
-        shayariAdapter = new ShayariAdapter(shayariList, getActivity());
-        shayariAdapter.notifyDataSetChanged();
+       // shayariAdapter = new ShayariAdapter(shayariList, getActivity());
+       // shayariAdapter.notifyDataSetChanged();
 
-        rvShayari.setAdapter(shayariAdapter);
+       // rvShayari.setAdapter(shayariAdapter);
 
         rvShayari.addOnItemTouchListener(new ShayariRecyclerTouchListener(getActivity(), rvShayari,
                 new ShayariClickListener() {
@@ -136,6 +137,9 @@ public class ShayariFragment extends Fragment {
                 Toast.makeText(getActivity(), favorites.get(i).getTitle(),Toast.LENGTH_SHORT).show();
             }
         }*/
+
+        getShayariByCatId(apiService,catId, position);
+
         return rootView;
     }
 
@@ -219,7 +223,10 @@ public class ShayariFragment extends Fragment {
                     Log.d("ankitTAGreversed", "title : " + shayariList.get(i).getTitle());
                 }
 
-                Bitmap bitmap = ((BitmapDrawable) ivTransition.getDrawable()).getBitmap();
+                ShayariAdapter shayariAdapter = new ShayariAdapter(shayariList, getActivity());
+                rvShayari.setAdapter(shayariAdapter);
+
+              /*  Bitmap bitmap = ((BitmapDrawable) ivTransition.getDrawable()).getBitmap();
                 shayariFragment = new ShayariFragment();
                 Bundle bundle = new Bundle();
                 bundle.putString("catTitle", catTitle);
@@ -231,7 +238,7 @@ public class ShayariFragment extends Fragment {
                 //bundle.putString("categoryName", categoriesList.get();
                 shayariFragment.setArguments(bundle);
                 pDialog.hide();
-                replaceFrag(shayariFragment, position);
+                replaceFrag(shayariFragment, position);*/
             }
 
             @Override
