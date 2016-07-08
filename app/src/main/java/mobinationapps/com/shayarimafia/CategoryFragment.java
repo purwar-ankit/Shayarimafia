@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,11 +14,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import adapter.CategoryAdapter;
 import adapter.ShayariAdapter;
@@ -28,6 +32,7 @@ import rest.ApiInterface;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import utils.Utility;
 
 /**
  * Created by ankit.purwar on 6/17/2016.
@@ -41,11 +46,15 @@ public class CategoryFragment extends Fragment {
     ProgressDialog pDialog;
     CategoryAdapter categoryAdapter;
     final ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+    FragmentManager fm;
+    ImageView ivTransition;
+    TextView tvTransition;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         categoriesList = new ArrayList<Categories>();
+        fm = getActivity().getSupportFragmentManager();
     }
 
     @Nullable
@@ -59,17 +68,40 @@ public class CategoryFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_category, container, false);
         tvTitle = (TextView) rootView.findViewById(R.id.tvCatTitle);
         rvCategoryView = (RecyclerView) rootView.findViewById(R.id.rvCategory);
+
         rvCategoryView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rvCategoryView.setHasFixedSize(true);
+        rvCategoryView.setItemViewCacheSize(20);
+        rvCategoryView.setDrawingCacheEnabled(true);
+        rvCategoryView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_AUTO);
+
+        View view = rvCategoryView.getChildAt(0);
+        if (view != null && rvCategoryView.getChildAdapterPosition(view) == 0) {
+            view.setTranslationY(-view.getTop() / 2);// or use view.animate().translateY();
+        }
+
+        rvCategoryView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MainActivity.FAB_Status) {
+                    MainActivity.hideFAB();
+                    MainActivity.FAB_Status = false;
+                }
+                return false;
+            }
+        });
 
         getCategories(apiService);
         /*categoryAdapter = new CategoryAdapter(categoriesList, getActivity());
         rvCategoryView.setAdapter(categoryAdapter);*/
 
-        rvCategoryView.addOnItemTouchListener(new CategoryRecyclerTouchListener(getActivity(), rvCategoryView,
+      /*  rvCategoryView.addOnItemTouchListener(new CategoryRecyclerTouchListener(getActivity(), rvCategoryView,
                 new CategoryClickListener() {
                     @Override
                     public void onClick(View view, int position) {
                         Toast.makeText(getActivity(), "calling getShayaris()", Toast.LENGTH_SHORT).show();
+
+
                       //   ShayariFragment shayariFragment = new ShayariFragment();
                        // MainActivity mainActivity = new MainActivity();
                        // mainActivity.replaceFrag(shayariFragment);
@@ -81,7 +113,7 @@ public class CategoryFragment extends Fragment {
                     @Override
                     public void onLongClick(View view, int position) {
                     }
-                }));
+                }));*/
 
         return rootView;
     }
@@ -121,18 +153,31 @@ public class CategoryFragment extends Fragment {
                 rvCategoryView.setAdapter(categoryAdapter);
 
                 pDialog.hide();
-             /*   rvCategoryView.addOnItemTouchListener(new CategoryRecyclerTouchListener(MainActivity.this, rvCategoryView,
+
+
+                rvCategoryView.addOnItemTouchListener(new CategoryRecyclerTouchListener(getActivity(), rvCategoryView,
                         new CategoryClickListener() {
                             @Override
                             public void onClick(View view, int position) {
-                                Toast.makeText(MainActivity.this, "calling getShayaris()", Toast.LENGTH_SHORT).show();
-                                getShayariByCatId(apiService, categoriesList.get(position).getCategory_id());
+                                Toast.makeText(getActivity(), "calling getShayaris()", Toast.LENGTH_SHORT).show();
+                               // getShayariByCatId(apiService, categoriesList.get(position).getCategory_id());
+
+                                ivTransition = (ImageView) view.findViewById(R.id.ivCatIcon);
+                                tvTransition = (TextView) view.findViewById(R.id.tvCatName);
+
+                                Map<String, View> transitionMap = new HashMap<>();
+                                transitionMap.put(getString(R.string.category_title) + position , tvTransition);
+                                transitionMap.put(getString(R.string.category_img) + position, ivTransition);
+
+                                ShayariFragment shayariFragment = new ShayariFragment();
+                                Utility.replaceFrag(getActivity(),shayariFragment,position,fm,transitionMap);
+
                             }
 
                             @Override
                             public void onLongClick(View view, int position) {
                             }
-                        }));*/
+                        }));
             }
 
             @Override

@@ -79,8 +79,6 @@ public class ShayariFragment extends Fragment {
 
         Bitmap blurredBitmap = BlurBuilder.blur( getActivity(), bitmap );
 
-        //view.setBackgroundDrawable( new BitmapDrawable( getResources(), blurredBitmap ) );
-
         int position = getArguments().getInt("catTransitionNamePos");
         View rootView = inflater.inflate(R.layout.test/*fragment_shayari*/, container, false);
         tvTitle = (TextView) rootView.findViewById(R.id.tvCatTitle);
@@ -126,25 +124,6 @@ public class ShayariFragment extends Fragment {
 
                     @Override
                     public void onLongClick(View view, int position) {
-
-                       /* ImageView ivFav = (ImageView)view.findViewById(R.id.ivFavourite);
-                        String tag =  ivFav.getTag().toString();
-                        if (tag.equalsIgnoreCase("grey")) {
-                            sharedPreference.addFavorite(getActivity(), shayariList.get(position));
-                            Toast.makeText(getActivity(),
-                                    "fav added",
-                                    Toast.LENGTH_SHORT).show();
-
-                            ivFav.setTag("red");
-                            ivFav.setImageResource(R.drawable.favorite);
-                        } else {
-                            sharedPreference.removeFavorite(getActivity(), shayariList.get(position));
-                            ivFav.setTag("grey");
-                            ivFav.setImageResource(R.drawable.favorite_unselect);
-                            Toast.makeText(getActivity(),
-                                    "removed fav",
-                                    Toast.LENGTH_SHORT).show();
-                        }*/
                     }
                 }));
 
@@ -162,10 +141,6 @@ public class ShayariFragment extends Fragment {
 
     public void setTransitionNameStr(String transStr){
         transitionStr = transStr;
-    }
-
-    public TextView getTextView(){
-        return tvTitle;
     }
 
     public static interface ShayariClickListener {
@@ -214,4 +189,58 @@ public class ShayariFragment extends Fragment {
         public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
         }
     }
+
+    public void getShayariByCatId(ApiInterface apiService, int catID, final int position) {
+
+        Log.d("ankitTAG", "getShayariById");
+        //pDialog = new ProgressDialog(this);
+        // pDialog.setCancelable(true);
+        //pDialog.setMessage("Loading...");
+
+        pDialog = new ProgressDialog(getActivity(), R.style.MyTheme);
+        pDialog.setCancelable(true);
+        // pDialog.setMessage("Loading...");
+        pDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
+
+        pDialog.show();
+        Call<List<Shayari>> call = apiService.getShayariByCategoy(catID);
+        call.enqueue(new Callback<List<Shayari>>() {
+
+            @Override
+            public void onResponse(Call<List<Shayari>> call, Response<List<Shayari>> response) {
+                for (int j = 0; j < response.body().size(); j++) {
+                    Shayari shayari = new Shayari();
+                    shayari.setContent(response.body().get(j).getContent());
+                    shayari.setId(response.body().get(j).getId());
+                    shayari.setTitle(response.body().get(j).getTitle());
+                    shayariList.add(shayari);
+                }
+                for (int i = 0; i < shayariList.size(); i++) {
+                    Log.d("ankitTAGreversed", "title : " + shayariList.get(i).getTitle());
+                }
+
+                Bitmap bitmap = ((BitmapDrawable) ivTransition.getDrawable()).getBitmap();
+                shayariFragment = new ShayariFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("catTitle", catTitle);
+                bundle.putString("catImgUrl", catImgUrl);
+                bundle.putInt("catTransitionNamePos", position);
+                bundle.putParcelable("bitmap", bitmap);
+                bundle.putParcelableArrayList("shayariArrayList", shayariList);
+
+                //bundle.putString("categoryName", categoriesList.get();
+                shayariFragment.setArguments(bundle);
+                pDialog.hide();
+                replaceFrag(shayariFragment, position);
+            }
+
+            @Override
+            public void onFailure(Call<List<Shayari>> call, Throwable t) {
+                Toast.makeText(getActivity(), "inside onFailure", Toast.LENGTH_SHORT).show();
+                Log.e("ankitTAG", t.toString());
+                pDialog.hide();
+            }
+        });
+    }
+
 }

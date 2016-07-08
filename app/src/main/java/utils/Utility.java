@@ -14,10 +14,19 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.text.Spanned;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -29,10 +38,14 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import mobinationapps.com.shayarimafia.AppController;
 import mobinationapps.com.shayarimafia.R;
+import mobinationapps.com.shayarimafia.ShayariFragment;
+import model.Shayari;
 
 
 /**
@@ -42,12 +55,50 @@ import mobinationapps.com.shayarimafia.R;
 public class Utility {
 
 
+    public static void replaceFrag(Context context, Fragment fragment1, int position, FragmentManager fm, Map<String, View> transitonMap) {
+
+        if (fragment1 != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // Inflate transitions to apply
+                Transition changeTransform = TransitionInflater.from(context).
+                        inflateTransition(R.transition.change_image_transform);
+                Transition explodeTransform = TransitionInflater.from(context).
+                        inflateTransition(android.R.transition.explode);
+
+                // Setup exit transition on first fragment
+                fragment1.setSharedElementReturnTransition(changeTransform);
+                fragment1.setExitTransition(explodeTransform);
+                ShayariFragment fragInst = new ShayariFragment();
+                fragInst.setTransitionNameStr(context.getString(R.string.category_title) + position);
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                transitonMap = new HashMap<String, View>();
+
+                for (Map.Entry<String, View> entry : transitonMap.entrySet()) {
+                    System.out.println(entry.getKey() + "/" + entry.getValue());
+                    entry.getValue().setTransitionName(entry.getKey());
+                    fragmentTransaction.addSharedElement(entry.getValue(), entry.getKey());
+                }
+                fragmentTransaction.replace(R.id.container_body, fragment1);
+                fragmentTransaction.addToBackStack("transaction");
+                fragmentTransaction.commit();
+            } else {
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                fragmentTransaction.replace(R.id.container_body, fragment1);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+            /*if (!shayariList.isEmpty() || !shayariList.equals(null)) {
+                shayariList = new ArrayList<Shayari>();
+            }*/
+
+        }
+    }
+
     /**
      * Check whether Internet Connection is available or not(e.g., connected or
      * Disconnected)
      *
-     * @param context
-     *            : Context of current Class
+     * @param context : Context of current Class
      * @return Boolean: true if connected false otherwise.
      */
     public static final boolean isNetWork(Context context) {
@@ -114,7 +165,7 @@ public class Utility {
 
     private static int currentApiVersion = Build.VERSION.SDK_INT;
 
-    public static void toShare(String text_to_share, Context context){
+    public static void toShare(String text_to_share, Context context) {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, text_to_share);
@@ -231,8 +282,7 @@ public class Utility {
         return stringToReturn;
     }
 
-    public static void rateUs(Context context)
-    {
+    public static void rateUs(Context context) {
         Uri uri = Uri.parse("market://details?id=" + context.getPackageName());
         Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
         // To count with Play market backstack, After pressing back button,

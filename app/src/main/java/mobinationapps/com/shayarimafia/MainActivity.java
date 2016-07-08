@@ -91,11 +91,11 @@ public class MainActivity extends AppCompatActivity
     TextView tvTransition;
     boolean isNetAvailable;
     ApiInterface apiService;
-    FloatingActionButton fab, fab1, fab2, fab3;
-    private boolean FAB_Status = false;
+    static FloatingActionButton fab, fab1, fab2, fab3;
+    public static boolean FAB_Status = false;
 
     //Animations
-    Animation show_fab_1, hide_fab_1, show_fab_2, hide_fab_2, show_fab_3, hide_fab_3;
+    static Animation show_fab_1, hide_fab_1, show_fab_2, hide_fab_2, show_fab_3, hide_fab_3;
 
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -145,8 +145,8 @@ public class MainActivity extends AppCompatActivity
         }
 
 
-      fab = (FloatingActionButton) findViewById(R.id.fab);
-             fab.setOnClickListener(new View.OnClickListener() {
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void onClick(View view) {
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity
                 Bitmap overlyBitmap = BitmapFactory.decodeResource(MainActivity.this.getResources(),
                         R.drawable.img3);
                 if (FAB_Status == false) {
-                    if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                    if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
                         mainCoordLay.setBackgroundDrawable(new BitmapDrawable(getResources(), overlyBitmap));
                     } else {
                         mainCoordLay.setBackground(new BitmapDrawable(getResources(), overlyBitmap));
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity
         fab3.setClickable(true);
     }
 
-    private void hideFAB() {
+    public static void hideFAB() {
         //Floating Action Button 1
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) fab1.getLayoutParams();
         layoutParams.rightMargin -= (int) (fab1.getWidth() * 1.7);
@@ -427,6 +427,13 @@ public class MainActivity extends AppCompatActivity
                 fragment.setArguments(bundle);
                 //  pDialog.hide();
                 //replaceFrag(fragment);
+
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                // fragmentTransaction.addSharedElement(tvTransition , getString(R.string.category_title));
+                fragmentTransaction.replace(R.id.container_body, fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+
                 categoryAdapter = new CategoryAdapter(categoriesList, MainActivity.this);
                 rvCategoryView.setAdapter(categoryAdapter);
                 pDialog.hide();
@@ -454,63 +461,6 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(MainActivity.this, "inside onFailure", Toast.LENGTH_SHORT).show();
                 Log.e("ankitTAG", t.toString());
                 pDialog.hide();
-            }
-        });
-    }
-
-    public void getShayaries(ApiInterface apiService) {
-        Toast.makeText(MainActivity.this, "CALLED getShayaris()", Toast.LENGTH_SHORT).show();
-        pDialog = new ProgressDialog(this);
-        pDialog.setCancelable(true);
-        pDialog.setMessage("Loading...");
-        pDialog.show();
-        Call<List<Shayari>> call = apiService.getAllShayaries();
-        call.enqueue(new Callback<List<Shayari>>() {
-            @Override
-            public void onResponse(Call<List<Shayari>> call, Response<List<Shayari>> response) {
-                //List<Shayari> shayariList = response.body();
-                for (int j = 0; j < response.body().size(); j++) {
-                    Shayari shayari = new Shayari();
-                    shayari.setContent(response.body().get(j).getContent());
-                    shayari.setId(response.body().get(j).getId());
-                    shayari.setTitle(response.body().get(j).getTitle());
-                    //  Log.d("ankitTAG", "size : " + categories.getCategory_title());
-                    shayariList.add(shayari);
-                }
-                for (int i = 0; i < shayariList.size(); i++) {
-                    Log.d("ankitTAGreversed", "title : " + shayariList.get(i).getTitle());
-                }
-                shayariAdapter = new ShayariAdapter(shayariList, MainActivity.this);
-                rvCategoryView.setAdapter(shayariAdapter);
-                pDialog.hide();
-            }
-
-            @Override
-            public void onFailure(Call<List<Shayari>> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "inside onFailure", Toast.LENGTH_SHORT).show();
-                Log.e("ankitTAG", t.toString());
-                pDialog.hide();
-            }
-        });
-
-    }
-
-    public void getShayariById(ApiInterface apiService, int shayariID) {
-
-        Log.d("ankitTAG", "getShayariById");
-
-        Call<Shayari> call = apiService.getShayariById(shayariID);
-        call.enqueue(new Callback<Shayari>() {
-            @Override
-            public void onResponse(Call<Shayari> call, Response<Shayari> response) {
-                Log.d("ankitTAG", " title:" + response.body().getTitle() + " id:" + response.body().getId()
-                        + " content :" + response.body().getContent());
-            }
-
-            @Override
-            public void onFailure(Call<Shayari> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "inside onFailure", Toast.LENGTH_SHORT).show();
-                Log.e("ankitTAG", t.toString());
             }
         });
     }
@@ -595,18 +545,8 @@ public class MainActivity extends AppCompatActivity
 
     private void replaceFrag(Fragment fragment, int position) {
         if (fragment != null) {
-            // FragmentManager fragmentManager = getSupportFragmentManager();
-           /* FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.addSharedElement(tvTransition , getString(R.string.category_title));
-            fragmentTransaction.replace(R.id.container_body, fragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();*/
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 // Inflate transitions to apply
-
-                Toast.makeText(this, "inside if", Toast.LENGTH_SHORT).show();
-
                 Transition changeTransform = TransitionInflater.from(this).
                         inflateTransition(R.transition.change_image_transform);
                 Transition explodeTransform = TransitionInflater.from(this).
@@ -623,28 +563,15 @@ public class MainActivity extends AppCompatActivity
                 TextView tvFrag;
 
                 ShayariFragment fragInst = new ShayariFragment();
-                /*ShayariFragment fragInst =
-                        (ShayariFragment)getSupportFragmentManager().findFragmentById(R.id.container_body);*/
                 fragInst.setTransitionNameStr(getString(R.string.category_title) + position);
-                //Frag = fragInst.getTextView();
-                /*tvFrag.setTransitionName(getString(R.string.category_title) + position);*/
-
-               /* ShayariFragment fragInstance =
-                        (ShayariFragment)getSupportFragmentManager().findFragmentById(R.id.container_body);
-                tvFrag = fragInstance.tvTitle;
-                fragInstance.tvTitle.setTransitionName(getString(R.string.category_title) + position);
-                fragInstance.header.setTransitionName(getString(R.string.category_img) + position);*/
-
-                Log.d("transitionNameSent", getString(R.string.category_title) + position + "tvTransition.getTransitionName(): " + tvTransition.getTransitionName());
                 FragmentTransaction fragmentTransaction = fm.beginTransaction();
                 fragmentTransaction.addSharedElement(tvTransition, getString(R.string.category_title) + position);
-              //  fragmentTransaction.addSharedElement(ivTransition, getString(R.string.category_img) + position);
+                //  fragmentTransaction.addSharedElement(ivTransition, getString(R.string.category_img) + position);
                 fragmentTransaction.replace(R.id.container_body, fragment);
                 fragmentTransaction.addToBackStack("transaction");
                 fragmentTransaction.commit();
             } else {
                 FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                // fragmentTransaction.addSharedElement(tvTransition , getString(R.string.category_title));
                 fragmentTransaction.replace(R.id.container_body, fragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
