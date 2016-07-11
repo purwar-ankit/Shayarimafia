@@ -42,7 +42,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity
     List<Shayari> shayariByCatList;
     CategoryAdapter categoryAdapter;
     ShayariAdapter shayariAdapter;
-    ProgressDialog pDialog;
+    //ProgressDialog pDialog;
     ShayariFragment shayariFragment;
     FragmentManager fm;
     Fragment fragment = null;
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 int sdk = android.os.Build.VERSION.SDK_INT;
                 Bitmap overlyBitmap = BitmapFactory.decodeResource(MainActivity.this.getResources(),
-                        R.drawable.img3);
+                        R.drawable.overlay_home);
                 if (FAB_Status == false) {
                     if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
                         mainCoordLay.setBackgroundDrawable(new BitmapDrawable(getResources(), overlyBitmap));
@@ -265,6 +265,10 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
         });
+        CategoryFragment categoryFragment = new CategoryFragment();
+
+        Utility.replaceFrag(MainActivity.this,categoryFragment,0,fm,null);
+
     }
 
     private void expandFAB() {
@@ -323,7 +327,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        getCategories(apiService);
+        //getCategories(apiService);
     }
 
     @Override
@@ -335,7 +339,7 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == 1) {
             switch (requestCode) {
                 case 1:
-                    getCategories(apiService);
+          //          getCategories(apiService);
                     break;
             }
         }
@@ -389,7 +393,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public void getCategories(final ApiInterface apiService) {
+   /* public void getCategories(final ApiInterface apiService) {
         pDialog = new ProgressDialog(this, R.style.MyTheme);
 
         ProgressBar spinner = new android.widget.ProgressBar(
@@ -463,7 +467,7 @@ public class MainActivity extends AppCompatActivity
                 pDialog.hide();
             }
         });
-    }
+    }*/
 
     public void getShayariByCatId(ApiInterface apiService, int catID, final int position) {
 
@@ -472,12 +476,12 @@ public class MainActivity extends AppCompatActivity
         // pDialog.setCancelable(true);
         //pDialog.setMessage("Loading...");
 
-        pDialog = new ProgressDialog(this, R.style.MyTheme);
-        pDialog.setCancelable(true);
+      //  pDialog = new ProgressDialog(this, R.style.MyTheme);
+      //  pDialog.setCancelable(true);
         // pDialog.setMessage("Loading...");
-        pDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
+     //   pDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
 
-        pDialog.show();
+     //   pDialog.show();
         Call<List<Shayari>> call = apiService.getShayariByCategoy(catID);
         call.enqueue(new Callback<List<Shayari>>() {
 
@@ -505,15 +509,15 @@ public class MainActivity extends AppCompatActivity
 
                 //bundle.putString("categoryName", categoriesList.get();
                 shayariFragment.setArguments(bundle);
-                pDialog.hide();
-                replaceFrag(shayariFragment, position);
+            //    pDialog.hide();
+               // replaceFrag(shayariFragment, position);
             }
 
             @Override
             public void onFailure(Call<List<Shayari>> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "inside onFailure", Toast.LENGTH_SHORT).show();
                 Log.e("ankitTAG", t.toString());
-                pDialog.hide();
+           //     pDialog.hide();
             }
         });
     }
@@ -539,11 +543,11 @@ public class MainActivity extends AppCompatActivity
         bundle.putParcelableArrayList("shayariArrayList", favorites);
 
         shayariFragment.setArguments(bundle);
-        pDialog.hide();
-        replaceFrag(shayariFragment, 1);
+      //  pDialog.hide();
+//        replaceFrag(shayariFragment, 1);
     }
 
-    private void replaceFrag(Fragment fragment, int position) {
+ /*   private void replaceFrag(Fragment fragment, int position) {
         if (fragment != null) {
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 // Inflate transitions to apply
@@ -563,7 +567,7 @@ public class MainActivity extends AppCompatActivity
                 TextView tvFrag;
 
                 ShayariFragment fragInst = new ShayariFragment();
-                fragInst.setTransitionNameStr(getString(R.string.category_title) + position);
+              //  fragInst.setTransitionNameStr(getString(R.string.category_title) + position);
                 FragmentTransaction fragmentTransaction = fm.beginTransaction();
                 fragmentTransaction.addSharedElement(tvTransition, getString(R.string.category_title) + position);
                 //  fragmentTransaction.addSharedElement(ivTransition, getString(R.string.category_img) + position);
@@ -583,7 +587,7 @@ public class MainActivity extends AppCompatActivity
             }
 
         }
-    }
+    }*/
 
     @Override
     public void onBackPressed() {

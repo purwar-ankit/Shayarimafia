@@ -68,23 +68,33 @@ public class Utility {
                 // Setup exit transition on first fragment
                 fragment1.setSharedElementReturnTransition(changeTransform);
                 fragment1.setExitTransition(explodeTransform);
-                ShayariFragment fragInst = new ShayariFragment();
-                fragInst.setTransitionNameStr(context.getString(R.string.category_title) + position);
-                FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                transitonMap = new HashMap<String, View>();
 
-                for (Map.Entry<String, View> entry : transitonMap.entrySet()) {
-                    System.out.println(entry.getKey() + "/" + entry.getValue());
-                    entry.getValue().setTransitionName(entry.getKey());
-                    fragmentTransaction.addSharedElement(entry.getValue(), entry.getKey());
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
+                if(transitonMap != null){
+                    transitonMap = new HashMap<String, View>();
+                    for (Map.Entry<String, View> entry : transitonMap.entrySet()) {
+                        System.out.println(entry.getKey() + "/" + entry.getValue());
+                        entry.getValue().setTransitionName(entry.getKey());
+                        fragmentTransaction.addSharedElement(entry.getValue(), entry.getKey());
+                    }
                 }
+
                 fragmentTransaction.replace(R.id.container_body, fragment1);
-                fragmentTransaction.addToBackStack("transaction");
+
+                if (fragment1 instanceof ShayariFragment){
+                    fragmentTransaction.addToBackStack("transaction");
+                }
+
+               //
                 fragmentTransaction.commit();
             } else {
                 FragmentTransaction fragmentTransaction = fm.beginTransaction();
                 fragmentTransaction.replace(R.id.container_body, fragment1);
-                fragmentTransaction.addToBackStack(null);
+
+                if (fragment1 instanceof ShayariFragment){
+                    fragmentTransaction.addToBackStack(null);
+                }
                 fragmentTransaction.commit();
             }
             /*if (!shayariList.isEmpty() || !shayariList.equals(null)) {

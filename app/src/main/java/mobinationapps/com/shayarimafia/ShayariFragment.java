@@ -1,12 +1,9 @@
 package mobinationapps.com.shayarimafia;
 
-import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,14 +22,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import adapter.CategoryAdapter;
 import adapter.ShayariAdapter;
+import animator.SlideInUpAnimator;
 import model.Shayari;
 import rest.ApiClient;
 import rest.ApiInterface;
@@ -58,7 +52,9 @@ public class ShayariFragment extends Fragment {
     final ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
     ArrayList<Shayari> shayariList;
     SharedPreference sharedPreference;
-    String transitionStr;
+    String tvTransitionStr, ivTransitionStr;
+    View rootView;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,59 +70,58 @@ public class ShayariFragment extends Fragment {
         Toast.makeText(getActivity(), "at fragment", Toast.LENGTH_SHORT).show();
         //shayariList = getArguments().getParcelableArrayList("shayariArrayList");
         String catTitle = getArguments().getString("catTitle");
-     //   String catImgUrl = getArguments().getString("catImgUrl");
+        //   String catImgUrl = getArguments().getString("catImgUrl");
         Bitmap bitmap = getArguments().getParcelable("bitmap");
 
-        Bitmap blurredBitmap = BlurBuilder.blur( getActivity(), bitmap );
+        Bitmap blurredBitmap = BlurBuilder.blur(getActivity(), bitmap);
 
         int position = getArguments().getInt("catTransitionNamePos");
-        int catId  = getArguments().getInt("catId");
-        View rootView = inflater.inflate(R.layout.test/*fragment_shayari*/, container, false);
-        tvTitle = (TextView) rootView.findViewById(R.id.tvCatTitle);
-       // rlFragmentShayriLay = (RelativeLayout) rootView.findViewById(R.id.rlFragmentShayriLay);
-        clFragmentTestLay = (CoordinatorLayout)rootView.findViewById(R.id.clFragmentTestLay);
-        header = (ImageView)rootView.findViewById(R.id.header);
+        int catId = getArguments().getInt("catId");
+         shayariAdapter = new ShayariAdapter(shayariList, getActivity());
 
+        if (rootView == null) {
+            rootView = inflater.inflate(R.layout.test/*fragment_shayari*/, container, false);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Log.d("transitionNameRecvd", getString(R.string.category_title) + position);
-            tvTitle.setTransitionName(transitionStr/*getString(R.string.category_title) + position*/);
-           // rlFragmentShayriLay.setTransitionName(getString(R.string.category_img) + position);
-            clFragmentTestLay.setTransitionName(getString(R.string.category_img) + position);
-            header.setTransitionName(getString(R.string.category_img) + position);
-            Log.d("transitionNameRecvd", "getTransitionName(): " + tvTitle.getTransitionName());
-        }
-        rvShayari = (RecyclerView) rootView.findViewById(R.id.rvShayari);
-        rvShayari.setLayoutManager(new LinearLayoutManager(getActivity()));
-        tvTitle.setText(catTitle);
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            //rlFragmentShayriLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), bitmap));
-            clFragmentTestLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), blurredBitmap));
-            header.setImageBitmap(bitmap);
-        } else {
-//          //  rlFragmentShayriLay.setBackground(new BitmapDrawable(getActivity().getResources(), bitmap));
-            clFragmentTestLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), blurredBitmap));
-            header.setImageBitmap(bitmap);
-        }
+            tvTitle = (TextView) rootView.findViewById(R.id.tvCatTitle);
+            clFragmentTestLay = (CoordinatorLayout) rootView.findViewById(R.id.clFragmentTestLay);
+            header = (ImageView) rootView.findViewById(R.id.header);
 
-        rvShayari.invalidate();
-       // shayariAdapter = new ShayariAdapter(shayariList, getActivity());
-       // shayariAdapter.notifyDataSetChanged();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Log.d("transitionNameRecvd", getString(R.string.category_title) + position);
+                tvTitle.setTransitionName(tvTransitionStr);
+                header.setTransitionName(ivTransitionStr);
+                clFragmentTestLay.setTransitionName(getString(R.string.category_img) + position);
+                Log.d("transitionNameRecvd", "getTransitionName(): " + tvTitle.getTransitionName());
+            }
+            rvShayari = (RecyclerView) rootView.findViewById(R.id.rvShayari);
+            rvShayari.setAdapter(shayariAdapter);
+            rvShayari.setItemAnimator(new SlideInUpAnimator());
+            rvShayari.setLayoutManager(new LinearLayoutManager(getActivity()));
+            tvTitle.setText(catTitle);
+            int sdk = android.os.Build.VERSION.SDK_INT;
+            if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
 
-       // rvShayari.setAdapter(shayariAdapter);
+                clFragmentTestLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), blurredBitmap));
+                header.setImageBitmap(bitmap);
+            } else {
 
-        rvShayari.addOnItemTouchListener(new ShayariRecyclerTouchListener(getActivity(), rvShayari,
-                new ShayariClickListener() {
-                    @Override
-                    public void onClick(View view, int position) {
-                        Toast.makeText(getActivity(), shayariList.get(position).getTitle(), Toast.LENGTH_SHORT).show();
-                    }
+                clFragmentTestLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), blurredBitmap));
+                header.setImageBitmap(bitmap);
+            }
 
-                    @Override
-                    public void onLongClick(View view, int position) {
-                    }
-                }));
+            rvShayari.invalidate();
+
+            rvShayari.addOnItemTouchListener(new ShayariRecyclerTouchListener(getActivity(), rvShayari,
+                    new ShayariClickListener() {
+                        @Override
+                        public void onClick(View view, int position) {
+                            Toast.makeText(getActivity(), shayariList.get(position).getTitle(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onLongClick(View view, int position) {
+                        }
+                    }));
 
         /*SharedPreference sharedPreference = new SharedPreference();
         Todo: //check for null shared preference
@@ -138,14 +133,16 @@ public class ShayariFragment extends Fragment {
             }
         }*/
 
-        getShayariByCatId(apiService,catId, position);
-
+            getShayariByCatId(apiService, catId, position);
+        }
         return rootView;
     }
 
-    public void setTransitionNameStr(String transStr){
-        transitionStr = transStr;
+    public void setTransitionNameStr(String tvTransStr, String ivTransStr) {
+        tvTransitionStr = tvTransStr;
+        ivTransitionStr = ivTransStr;
     }
+
 
     public static interface ShayariClickListener {
         public void onClick(View view, int position);
@@ -223,8 +220,12 @@ public class ShayariFragment extends Fragment {
                     Log.d("ankitTAGreversed", "title : " + shayariList.get(i).getTitle());
                 }
 
-                ShayariAdapter shayariAdapter = new ShayariAdapter(shayariList, getActivity());
-                rvShayari.setAdapter(shayariAdapter);
+                  if (shayariList != null && shayariList.size() > 0){
+                    shayariAdapter.notifyItemRangeInserted(0, shayariList.size()  - 1);
+                }
+
+              //  ShayariAdapter shayariAdapter = new ShayariAdapter(shayariList, getActivity());
+               // rvShayari.setAdapter(shayariAdapter);
 
               /*  Bitmap bitmap = ((BitmapDrawable) ivTransition.getDrawable()).getBitmap();
                 shayariFragment = new ShayariFragment();
