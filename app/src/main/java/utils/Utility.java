@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 import mobinationapps.com.shayarimafia.AppController;
+import mobinationapps.com.shayarimafia.FavouriteFragment;
 import mobinationapps.com.shayarimafia.R;
 import mobinationapps.com.shayarimafia.ShayariFragment;
 import model.Shayari;
@@ -56,6 +57,8 @@ public class Utility {
 
 
     public static void replaceFrag(Context context, Fragment fragment1, int position, FragmentManager fm, Map<String, View> transitonMap) {
+
+        Log.d("ankitTag", "inside utility.replaceFrag : "+ fragment1);
 
         if (fragment1 != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -82,7 +85,7 @@ public class Utility {
 
                 fragmentTransaction.replace(R.id.container_body, fragment1);
 
-                if (fragment1 instanceof ShayariFragment){
+                if (fragment1 instanceof ShayariFragment || fragment1 instanceof FavouriteFragment){
                     fragmentTransaction.addToBackStack("transaction");
                 }
 
@@ -92,7 +95,7 @@ public class Utility {
                 FragmentTransaction fragmentTransaction = fm.beginTransaction();
                 fragmentTransaction.replace(R.id.container_body, fragment1);
 
-                if (fragment1 instanceof ShayariFragment){
+                if (fragment1 instanceof ShayariFragment || fragment1 instanceof FavouriteFragment){
                     fragmentTransaction.addToBackStack(null);
                 }
                 fragmentTransaction.commit();
@@ -102,6 +105,16 @@ public class Utility {
             }*/
 
         }
+    }
+
+    public static void replaceFAvFragment(FragmentManager fm, Fragment fragment){
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.container_body, fragment);
+
+       // if (fragment instanceof ShayariFragment || fragment instanceof FavouriteFragment){
+            fragmentTransaction.addToBackStack(null);
+       // }
+        fragmentTransaction.commit();
     }
 
     /**

@@ -35,13 +35,13 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerHorizontal="true"
                 android:gravity="center"
-                android:textSize="@dimen/text_size_22"
-                android:paddingBottom="@dimen/padding_8dp"
-                android:paddingLeft="@dimen/padding_8dp"
-                android:paddingRight="@dimen/padding_8dp"
-                android:paddingTop="@dimen/padding_8dp"
+                android:textSize="@dimen/text_size_24"
+                android:paddingBottom="@dimen/padding_16dp"
+                android:paddingLeft="@dimen/padding_16dp"
+                android:paddingRight="@dimen/padding_16dp"
+                android:paddingTop="@dimen/padding_16dp"
                 android:text="description"
-
+                android:textStyle="bold"
                 android:textColor="@color/optsy_white"
                 android:typeface="serif" />
         </RelativeLayout>

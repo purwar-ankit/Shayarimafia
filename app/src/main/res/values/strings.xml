@@ -40,5 +40,8 @@
 
     <string name="category_img">categoryIcon</string>
     <string name="category_title">categoryTitle</string>
+    <string name="fav_title">पसंदीदा</string>
+    <string name="error_msg">त्रुटि हुई सर्वर के साथ बातचीत करते हुए </string>
+    <string name="no_internet_msg">कोई इंटरनेट कनेक्टिविटी ना मिलने के कारन , केवल आपकी पसंदीदा शायरी ही दिखाई जाएगी..</string>
 
 </resources>

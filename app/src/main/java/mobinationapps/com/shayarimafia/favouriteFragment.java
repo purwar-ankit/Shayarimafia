@@ -40,7 +40,7 @@ import utils.SharedPreference;
  * Created by ankit.purwar on 6/16/2016.
  */
 
-public class ShayariFragment extends Fragment {
+public class FavouriteFragment extends Fragment {
 
     RelativeLayout rlFragmentShayriLay;
     CoordinatorLayout clFragmentTestLay;
@@ -50,33 +50,35 @@ public class ShayariFragment extends Fragment {
     ShayariAdapter shayariAdapter;
     ProgressDialog pDialog;
     final ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-    ArrayList<Shayari> shayariList;
-    SharedPreference sharedPreference;
     String tvTransitionStr, ivTransitionStr;
     View rootView;
+    SharedPreference sharedPreference ;
+    List<Shayari> favorites;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        shayariList = new ArrayList<Shayari>();
+        favorites = new ArrayList<Shayari>();
         sharedPreference = new SharedPreference();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        Toast.makeText(getActivity(), "at fragment", Toast.LENGTH_SHORT).show();
+        Log.d("ankitFragTag", "inside fav frag");
         String catTitle = getArguments().getString("catTitle");
+        //   String catImgUrl = getArguments().getString("catImgUrl");
         Bitmap bitmap = getArguments().getParcelable("bitmap");
         Bitmap blurredBitmap = BlurBuilder.blur(getActivity(), bitmap);
-
         int position = getArguments().getInt("catTransitionNamePos");
-        int catId = getArguments().getInt("catId");
-        shayariAdapter = new ShayariAdapter(shayariList, getActivity());
+
+         shayariAdapter = new ShayariAdapter(favorites, getActivity());
 
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.test/*fragment_shayari*/, container, false);
-
             tvTitle = (TextView) rootView.findViewById(R.id.tvCatTitle);
             tvError = (TextView) rootView.findViewById(R.id.tvError);
             clFragmentTestLay = (CoordinatorLayout) rootView.findViewById(R.id.clFragmentTestLay);
@@ -90,12 +92,12 @@ public class ShayariFragment extends Fragment {
                 Log.d("transitionNameRecvd", "getTransitionName(): " + tvTitle.getTransitionName());
             }
             rvShayari = (RecyclerView) rootView.findViewById(R.id.rvShayari);
-            rvShayari.setAdapter(shayariAdapter);
+            //rvShayari.setAdapter(shayariAdapter);
             rvShayari.setItemAnimator(new SlideInUpAnimator());
             rvShayari.setLayoutManager(new LinearLayoutManager(getActivity()));
             tvTitle.setText(catTitle);
-            int sdk = android.os.Build.VERSION.SDK_INT;
-            if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            int sdk = Build.VERSION.SDK_INT;
+            if (sdk < Build.VERSION_CODES.JELLY_BEAN) {
 
                 clFragmentTestLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), blurredBitmap));
                 header.setImageBitmap(bitmap);
@@ -104,22 +106,21 @@ public class ShayariFragment extends Fragment {
                 clFragmentTestLay.setBackgroundDrawable(new BitmapDrawable(getActivity().getResources(), blurredBitmap));
                 header.setImageBitmap(bitmap);
             }
-
             rvShayari.invalidate();
 
             rvShayari.addOnItemTouchListener(new ShayariRecyclerTouchListener(getActivity(), rvShayari,
                     new ShayariClickListener() {
                         @Override
                         public void onClick(View view, int position) {
-                            Toast.makeText(getActivity(), shayariList.get(position).getTitle(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), favorites.get(position).getTitle(), Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
                         public void onLongClick(View view, int position) {
                         }
                     }));
-
-            getShayariByCatId(apiService, catId, position);
+            getFavShayaris();
+            //getShayariByCatId(apiService, catId, position);
         }
         return rootView;
     }
@@ -129,6 +130,7 @@ public class ShayariFragment extends Fragment {
         ivTransitionStr = ivTransStr;
     }
 
+
     public static interface ShayariClickListener {
         public void onClick(View view, int position);
 
@@ -137,9 +139,9 @@ public class ShayariFragment extends Fragment {
 
     static class ShayariRecyclerTouchListener implements RecyclerView.OnItemTouchListener {
         private GestureDetector gestureDetector;
-        private ShayariFragment.ShayariClickListener shayariClickListener;
+        private FavouriteFragment.ShayariClickListener shayariClickListener;
 
-        public ShayariRecyclerTouchListener(final Context context, final RecyclerView recyclerView, final ShayariFragment.ShayariClickListener categoryClickListener) {
+        public ShayariRecyclerTouchListener(final Context context, final RecyclerView recyclerView, final FavouriteFragment.ShayariClickListener categoryClickListener) {
             this.shayariClickListener = categoryClickListener;
             gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
@@ -176,55 +178,32 @@ public class ShayariFragment extends Fragment {
         }
     }
 
-    public void getShayariByCatId(ApiInterface apiService, int catID, final int position) {
+    private void getFavShayaris(){
+        Log.d("ankitFragTag", "inside getFavShayari");
+        favorites = sharedPreference.getFavorites(getActivity());
 
-        Log.d("ankitTAG", "getShayariById");
-        //pDialog = new ProgressDialog(this);
-        // pDialog.setCancelable(true);
-        //pDialog.setMessage("Loading...");
+        if(!favorites.isEmpty() || !favorites.equals(null)){
+            rvShayari.setVisibility(View.VISIBLE);
+            tvError.setVisibility(View.GONE);
 
-        pDialog = new ProgressDialog(getActivity(), R.style.MyTheme);
-        pDialog.setCancelable(true);
-        // pDialog.setMessage("Loading...");
-        pDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
-
-        pDialog.show();
-        Call<List<Shayari>> call = apiService.getShayariByCategoy(catID);
-        call.enqueue(new Callback<List<Shayari>>() {
-
-            @Override
-            public void onResponse(Call<List<Shayari>> call, Response<List<Shayari>> response) {
-                if (response.code() == 200) {
-                    if (response.body() != null) {
-                        for (int j = 0; j < response.body().size(); j++) {
-                            Shayari shayari = new Shayari();
-                            shayari.setContent(response.body().get(j).getContent());
-                            shayari.setId(response.body().get(j).getId());
-                            shayari.setTitle(response.body().get(j).getTitle());
-                            shayariList.add(shayari);
-                        }
-                        for (int i = 0; i < shayariList.size(); i++) {
-                            Log.d("ankitTAGreversed", "title : " + shayariList.get(i).getTitle());
-                        }
-                        if (shayariList != null && shayariList.size() > 0) {
-                            shayariAdapter.notifyItemRangeInserted(0, shayariList.size() - 1);
-                        }
-                    }
-                } else {
-                    tvError.setVisibility(View.VISIBLE);
-                    tvError.setText(getString(R.string.error_msg) + response.code() + " " + response.message());
-                    pDialog.hide();
-                    Toast.makeText(getActivity(), "null response recived", Toast.LENGTH_SHORT).show();
-                }
+            shayariAdapter = new ShayariAdapter(favorites, getActivity());
+            rvShayari.setAdapter(shayariAdapter);
+           /* for (int i=0; i< favorites.size(); i++)
+            {   Shayari shayari = new Shayari();
+                shayari.setContent(favorites.get(i).getContent());
+                shayari.setId(favorites.get(i).getId());
+                shayari.setTitle(favorites.get(i).getTitle());
+                favorites.add(shayari);
+                //Toast.makeText(getActivity(), favorites.get(i).getTitle(),Toast.LENGTH_SHORT).show();
+            }*/
+            if (favorites != null && favorites.size() > 0){
+                shayariAdapter.notifyItemRangeInserted(0, favorites.size()  - 1);
             }
-
-            @Override
-            public void onFailure(Call<List<Shayari>> call, Throwable t) {
-                Toast.makeText(getActivity(), "inside onFailure", Toast.LENGTH_SHORT).show();
-                Log.e("ankitTAG", t.toString());
-                pDialog.hide();
-            }
-        });
+        }else {
+            rvShayari.setVisibility(View.GONE);
+            tvError.setVisibility(View.VISIBLE);
+            tvError.setText(getString(R.string.no_favorites));
+        }
     }
 
 }

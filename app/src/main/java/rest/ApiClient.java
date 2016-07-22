@@ -1,5 +1,6 @@
 package rest;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -10,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
 
     public static final String BASE_URL = "http://www.shayarimafia.com/app/";
-    private static Retrofit retrofit = null;
+     static Retrofit retrofit = null;
 
 
     public static Retrofit getClient() {
@@ -22,4 +23,16 @@ public class ApiClient {
         }
         return retrofit;
     }
+
+   /* private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+    private static Retrofit.Builder builder =
+            new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create());
+
+    public static <S> S createService(Class<S> serviceClass) {
+        Retrofit retrofit = builder.client(httpClient.build()).build();
+        return retrofit.create(serviceClass);
+    }*/
 }

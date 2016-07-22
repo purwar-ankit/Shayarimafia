@@ -85,6 +85,7 @@ public class ShayariAdapter extends RecyclerView.Adapter<ShayariAdapter.ShayariV
                             Toast.LENGTH_SHORT).show();
 
                     holder.ivAddToFavourite.setTag("red");
+                    Log.d("ankitFavTAG", "added: "+ holder.ivAddToFavourite.getTag());
                     holder.ivAddToFavourite.setImageResource(R.drawable.favorite);
                 } else {
                     sharedPreference.removeFavorite(context, shayariList.get(position));
@@ -93,6 +94,7 @@ public class ShayariAdapter extends RecyclerView.Adapter<ShayariAdapter.ShayariV
                             Toast.LENGTH_SHORT).show();
 
                     holder.ivAddToFavourite.setTag("grey");
+                    Log.d("ankitFavTAG", "removed: "+ holder.ivAddToFavourite.getTag());
                     holder.ivAddToFavourite.setImageResource(R.drawable.favorite_unselect);
                      }
             }

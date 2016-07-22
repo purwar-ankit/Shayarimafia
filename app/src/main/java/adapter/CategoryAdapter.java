@@ -62,7 +62,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.tvCatName.setText(categories.getCategory_title() +" " +categories.getCategory_count());
         Picasso.with(context).load(categories.getImg_url())
                 .placeholder(R.drawable.img3)
-                .resize(200,200).into(holder.ivCatIcon);
+                .resize(250,300).into(holder.ivCatIcon);
         pDialog.hide();
        /* Picasso.with(context).load(categories.getImg_url())
                 .into(new Target() {

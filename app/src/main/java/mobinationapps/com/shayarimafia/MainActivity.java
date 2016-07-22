@@ -2,6 +2,7 @@ package mobinationapps.com.shayarimafia;
 
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -75,28 +76,20 @@ public class MainActivity extends AppCompatActivity
 
     CoordinatorLayout mainCoordLay;
     RecyclerView rvCategoryView;
-    // List<Categories> categoriesList;
     ArrayList<Shayari> shayariList;
     ArrayList<Categories> categoriesList;
-    List<Shayari> shayariByCatList;
-    CategoryAdapter categoryAdapter;
-    ShayariAdapter shayariAdapter;
+
     //ProgressDialog pDialog;
-    ShayariFragment shayariFragment;
+
     FragmentManager fm;
-    Fragment fragment = null;
-    String catTitle;
-    String catImgUrl;
-    ImageView ivTransition;
-    TextView tvTransition;
-    boolean isNetAvailable;
+     boolean isNetAvailable;
     ApiInterface apiService;
+
     static FloatingActionButton fab, fab1, fab2, fab3;
     public static boolean FAB_Status = false;
-
+    FavouriteFragment favouriteFragment;
     //Animations
     static Animation show_fab_1, hide_fab_1, show_fab_2, hide_fab_2, show_fab_3, hide_fab_3;
-
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -107,13 +100,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         mainCoordLay = (CoordinatorLayout) findViewById(R.id.mainCoordLay);
-
         fab1 = (FloatingActionButton) findViewById(R.id.fab_1);
         fab2 = (FloatingActionButton) findViewById(R.id.fab_2);
         fab3 = (FloatingActionButton) findViewById(R.id.fab_3);
-
         show_fab_1 = AnimationUtils.loadAnimation(getApplication(), R.anim.fab1_show);
         hide_fab_1 = AnimationUtils.loadAnimation(getApplication(), R.anim.fab1_hide);
         show_fab_2 = AnimationUtils.loadAnimation(getApplication(), R.anim.fab2_show);
@@ -122,19 +112,12 @@ public class MainActivity extends AppCompatActivity
         hide_fab_3 = AnimationUtils.loadAnimation(getApplication(), R.anim.fab3_hide);
 
         isNetAvailable = Utility.checkNetworkConnectivity(MainActivity.this);
-        categoriesList = new ArrayList<Categories>();
+
+      /*  categoriesList = new ArrayList<Categories>();
         shayariList = new ArrayList<Shayari>();
-
         rvCategoryView = (RecyclerView) findViewById(R.id.recycler_view);
-
         rvCategoryView.setHasFixedSize(true);
         rvCategoryView.setLayoutManager(new LinearLayoutManager(this));
-
-      /*  rvCategoryView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-        DividerItemDecoration decoration = new DividerItemDecoration(5);
-        rvCategoryView.addItemDecoration(decoration);*/
-
-        rvCategoryView.setHasFixedSize(true);
         rvCategoryView.setItemViewCacheSize(20);
         rvCategoryView.setDrawingCacheEnabled(true);
         rvCategoryView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_AUTO);
@@ -142,7 +125,7 @@ public class MainActivity extends AppCompatActivity
         View view = rvCategoryView.getChildAt(0);
         if (view != null && rvCategoryView.getChildAdapterPosition(view) == 0) {
             view.setTranslationY(-view.getTop() / 2);// or use view.animate().translateY();
-        }
+        }*/
 
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -201,51 +184,30 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         apiService = ApiClient.getClient().create(ApiInterface.class);
 
+
         fm = getSupportFragmentManager();
-        // shayariFragment = (ShayariFragment) fm.findFragmentById(R.id.container_body);
-         /*  fragment = new CategoryFragment();
-        replaceFrag(fragment);*/
+
         if (isNetAvailable) {
-            //  getCategories(apiService);
+            CategoryFragment categoryFragment = new CategoryFragment();
+            Utility.replaceFrag(MainActivity.this, categoryFragment, 0, fm, null);
         } else {
             Toast.makeText(this, "no internet connectivity found", Toast.LENGTH_SHORT).show();
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-            alertDialogBuilder.setMessage("No internet connectivity found, Check settings?");
+            alertDialogBuilder.setMessage(getResources().getString(R.string.no_internet_msg));
 
-            alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            alertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface arg0, int arg1) {
-                    Intent settingsIntent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-                    MainActivity.this.startActivityForResult(settingsIntent, 1);
-                }
+                    showFavorities();
+                            }
             });
 
             alertDialogBuilder.setNegativeButton("No,Exit app", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                  /*  SharedPreference sharedPreference = new SharedPreference();
-                    ArrayList<Shayari> favorites = sharedPreference.getFavorites(MainActivity.this);
-                    if(!favorites.isEmpty() || !favorites.equals(null)){
-                        for (int i=0;i<favorites.size();i++)
-                        {
-                           // Toast.makeText(MainActivity.this, favorites.get(i).getTitle(),Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    shayariFragment = new ShayariFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("catTitle", catTitle);
-                    bundle.putString("catImgUrl", catImgUrl);
-
-                    bundle.putParcelableArrayList("shayariArrayList", favorites);
-
-                    shayariFragment.setArguments(bundle);
-                    pDialog.hide();
-                    replaceFrag(shayariFragment, 1*//*position*//*);
-*/
                     finish();
                 }
             });
@@ -255,7 +217,7 @@ public class MainActivity extends AppCompatActivity
             //on go to settings button click
         }
 
-        rvCategoryView.setOnTouchListener(new View.OnTouchListener() {
+    /*    rvCategoryView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (FAB_Status) {
@@ -264,15 +226,12 @@ public class MainActivity extends AppCompatActivity
                 }
                 return false;
             }
-        });
-        CategoryFragment categoryFragment = new CategoryFragment();
+        });*/
 
-        Utility.replaceFrag(MainActivity.this,categoryFragment,0,fm,null);
 
     }
 
     private void expandFAB() {
-
         //Floating Action Button 1
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) fab1.getLayoutParams();
         layoutParams.rightMargin += (int) (fab1.getWidth() * 1.7);
@@ -327,267 +286,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        //getCategories(apiService);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        Toast.makeText(this, "result code: " + resultCode, Toast.LENGTH_SHORT).show();
-
-        if (resultCode == 1) {
-            switch (requestCode) {
-                case 1:
-          //          getCategories(apiService);
-                    break;
-            }
-        }
-    }
-
-    public static interface CategoryClickListener {
-        public void onClick(View view, int position);
-
-        public void onLongClick(View view, int position);
-    }
-
-    static class CategoryRecyclerTouchListener implements RecyclerView.OnItemTouchListener {
-        private GestureDetector gestureDetector;
-        private CategoryClickListener categoryClickListener;
-
-        public CategoryRecyclerTouchListener(final Context context, final RecyclerView recyclerView, final CategoryClickListener categoryClickListener) {
-            this.categoryClickListener = categoryClickListener;
-            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onSingleTapUp(MotionEvent e) {
-                    return true;
-                }
-
-                @Override
-                public void onLongPress(MotionEvent e) {
-                    View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                    if (child != null && categoryClickListener != null) {
-                        categoryClickListener.onLongClick(child, recyclerView.getChildLayoutPosition(child));
-                    }
-                    super.onLongPress(e);
-                }
-            });
-        }
-
-        @Override
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-            View child = rv.findChildViewUnder(e.getX(), e.getY());
-            if (child != null && categoryClickListener != null && gestureDetector.onTouchEvent(e)) {
-                categoryClickListener.onClick(child, rv.getChildLayoutPosition(child));
-            }
-            return false;
-        }
-
-        @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-        }
-
-        @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        }
-    }
-
-
-   /* public void getCategories(final ApiInterface apiService) {
-        pDialog = new ProgressDialog(this, R.style.MyTheme);
-
-        ProgressBar spinner = new android.widget.ProgressBar(
-                this,
-                null,
-                android.R.attr.progressBarStyle);
-
-        spinner.getIndeterminateDrawable().setColorFilter(0xFFFF0000, android.graphics.PorterDuff.Mode.MULTIPLY);
-
-
-        pDialog.setCancelable(true);
-        // pDialog.setMessage("Loading...");
-        pDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
-        pDialog.show();
-        Call<List<Categories>> call = apiService.getAllCategories();
-        call.enqueue(new Callback<List<Categories>>() {
-            @Override
-            public void onResponse(Call<List<Categories>> call, Response<List<Categories>> response) {
-                Toast.makeText(MainActivity.this, "inside onResponse", Toast.LENGTH_SHORT).show();
-                for (int j = 0; j < response.body().size(); j++) {
-                    Categories categories = new Categories();
-                    categories.setCategory_id(response.body().get(j).getCategory_id());
-                    categories.setCategory_count(response.body().get(j).getCategory_count());
-                    categories.setCategory_title(response.body().get(j).getCategory_title());
-                    categories.setImg_url(response.body().get(j).getImg_url());
-                    categoriesList.add(categories);
-                }
-                for (int i = 0; i < categoriesList.size(); i++) {
-                    Log.d("ankitTAGreversed", "title : " + categoriesList.get(i).getCategory_title());
-                }
-
-                fragment = new CategoryFragment();
-                Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList("categoryArrayList", categoriesList);
-                fragment.setArguments(bundle);
-                //  pDialog.hide();
-                //replaceFrag(fragment);
-
-                FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                // fragmentTransaction.addSharedElement(tvTransition , getString(R.string.category_title));
-                fragmentTransaction.replace(R.id.container_body, fragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-
-                categoryAdapter = new CategoryAdapter(categoriesList, MainActivity.this);
-                rvCategoryView.setAdapter(categoryAdapter);
-                pDialog.hide();
-                rvCategoryView.addOnItemTouchListener(new CategoryRecyclerTouchListener(MainActivity.this, rvCategoryView,
-                        new CategoryClickListener() {
-                            @Override
-                            public void onClick(View view, int position) {
-                                Toast.makeText(MainActivity.this, "calling getShayaris()", Toast.LENGTH_SHORT).show();
-                                catTitle = categoriesList.get(position).getCategory_title();
-                                catImgUrl = categoriesList.get(position).getImg_url();
-                                getShayariByCatId(apiService, categoriesList.get(position).getCategory_id(), position);
-
-                                ivTransition = (ImageView) view.findViewById(R.id.ivCatIcon);
-                                tvTransition = (TextView) view.findViewById(R.id.tvCatName);
-                            }
-
-                            @Override
-                            public void onLongClick(View view, int position) {
-                            }
-                        }));
-            }
-
-            @Override
-            public void onFailure(Call<List<Categories>> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "inside onFailure", Toast.LENGTH_SHORT).show();
-                Log.e("ankitTAG", t.toString());
-                pDialog.hide();
-            }
-        });
-    }*/
-
-    public void getShayariByCatId(ApiInterface apiService, int catID, final int position) {
-
-        Log.d("ankitTAG", "getShayariById");
-        //pDialog = new ProgressDialog(this);
-        // pDialog.setCancelable(true);
-        //pDialog.setMessage("Loading...");
-
-      //  pDialog = new ProgressDialog(this, R.style.MyTheme);
-      //  pDialog.setCancelable(true);
-        // pDialog.setMessage("Loading...");
-     //   pDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
-
-     //   pDialog.show();
-        Call<List<Shayari>> call = apiService.getShayariByCategoy(catID);
-        call.enqueue(new Callback<List<Shayari>>() {
-
-            @Override
-            public void onResponse(Call<List<Shayari>> call, Response<List<Shayari>> response) {
-                for (int j = 0; j < response.body().size(); j++) {
-                    Shayari shayari = new Shayari();
-                    shayari.setContent(response.body().get(j).getContent());
-                    shayari.setId(response.body().get(j).getId());
-                    shayari.setTitle(response.body().get(j).getTitle());
-                    shayariList.add(shayari);
-                }
-                for (int i = 0; i < shayariList.size(); i++) {
-                    Log.d("ankitTAGreversed", "title : " + shayariList.get(i).getTitle());
-                }
-
-                Bitmap bitmap = ((BitmapDrawable) ivTransition.getDrawable()).getBitmap();
-                shayariFragment = new ShayariFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("catTitle", catTitle);
-                bundle.putString("catImgUrl", catImgUrl);
-                bundle.putInt("catTransitionNamePos", position);
-                bundle.putParcelable("bitmap", bitmap);
-                bundle.putParcelableArrayList("shayariArrayList", shayariList);
-
-                //bundle.putString("categoryName", categoriesList.get();
-                shayariFragment.setArguments(bundle);
-            //    pDialog.hide();
-               // replaceFrag(shayariFragment, position);
-            }
-
-            @Override
-            public void onFailure(Call<List<Shayari>> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "inside onFailure", Toast.LENGTH_SHORT).show();
-                Log.e("ankitTAG", t.toString());
-           //     pDialog.hide();
-            }
-        });
     }
 
     private void showFavorities() {
-        SharedPreference sharedPreference = new SharedPreference();
-        ArrayList<Shayari> favorites = sharedPreference.getFavorites(MainActivity.this);
-        if (!favorites.isEmpty() || !favorites.equals(null)) {
-            for (int i = 0; i < favorites.size(); i++) {
-                // Toast.makeText(MainActivity.this, favorites.get(i).getTitle(),Toast.LENGTH_SHORT).show();
-            }
-        }
-
-
-        Bitmap bitmap = BitmapFactory.decodeResource(MainActivity.this.getResources(),
-                R.drawable.favorite);
-        shayariFragment = new ShayariFragment();
+        favouriteFragment = new FavouriteFragment();
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.favorite);
         Bundle bundle = new Bundle();
+        bundle.putString("catTitle", getResources().getString(R.string.fav_title));
+        bundle.putInt("catTransitionNamePos", 101);
         bundle.putParcelable("bitmap", bitmap);
-        bundle.putString("catTitle", "Favorite");
-        bundle.putString("catImgUrl", catImgUrl);
+        favouriteFragment.setArguments(bundle);
 
-        bundle.putParcelableArrayList("shayariArrayList", favorites);
-
-        shayariFragment.setArguments(bundle);
-      //  pDialog.hide();
-//        replaceFrag(shayariFragment, 1);
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.container_body, favouriteFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+        // Utility.replaceFAvFragment(fm, favouriteFragment);
     }
 
- /*   private void replaceFrag(Fragment fragment, int position) {
-        if (fragment != null) {
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                // Inflate transitions to apply
-                Transition changeTransform = TransitionInflater.from(this).
-                        inflateTransition(R.transition.change_image_transform);
-                Transition explodeTransform = TransitionInflater.from(this).
-                        inflateTransition(android.R.transition.explode);
-
-                // Setup exit transition on first fragment
-                fragment.setSharedElementReturnTransition(changeTransform);
-                fragment.setExitTransition(explodeTransform);
-
-                // Add second fragment by replacing first
-                tvTransition.setTransitionName(getString(R.string.category_title) + position);
-                ivTransition.setTransitionName(getString(R.string.category_img) + position);
-
-                TextView tvFrag;
-
-                ShayariFragment fragInst = new ShayariFragment();
-              //  fragInst.setTransitionNameStr(getString(R.string.category_title) + position);
-                FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                fragmentTransaction.addSharedElement(tvTransition, getString(R.string.category_title) + position);
-                //  fragmentTransaction.addSharedElement(ivTransition, getString(R.string.category_img) + position);
-                fragmentTransaction.replace(R.id.container_body, fragment);
-                fragmentTransaction.addToBackStack("transaction");
-                fragmentTransaction.commit();
-            } else {
-                FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                fragmentTransaction.replace(R.id.container_body, fragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-            }
-
-
-            if (!shayariList.isEmpty() || !shayariList.equals(null)) {
-                shayariList = new ArrayList<Shayari>();
-            }
-
-        }
-    }*/
 
     @Override
     public void onBackPressed() {

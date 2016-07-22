@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -27,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import adapter.CategoryAdapter;
-import adapter.ShayariAdapter;
+
 import model.Categories;
-import model.Shayari;
+
 import rest.ApiClient;
 import rest.ApiInterface;
 import retrofit2.Call;
@@ -43,7 +42,7 @@ import utils.Utility;
 
 public class CategoryFragment extends Fragment {
 
-    TextView tvTitle;
+    TextView tvTitle, tvError;
     RecyclerView rvCategoryView;
     ArrayList<Categories> categoriesList;
     ProgressDialog pDialog;
@@ -66,20 +65,12 @@ public class CategoryFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        Toast.makeText(getActivity(), "at fragment", Toast.LENGTH_SHORT).show();
-//        categoriesList = getArguments().getParcelableArrayList("categoryArrayList");
-        //  Log.d("categoryArrayList", categoriesList.get(1).getCategory_title());
-
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_category, container, false);
             tvTitle = (TextView) rootView.findViewById(R.id.tvCatTitle);
-            rvCategoryView = (RecyclerView) rootView.findViewById(R.id.rvCategory);
+            tvError = (TextView) rootView.findViewById(R.id.tvError);
 
-          /*   rvCategoryView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-            DividerItemDecoration decoration = new DividerItemDecoration(5);
-            rvCategoryView.addItemDecoration(decoration);
-*/
+            rvCategoryView = (RecyclerView) rootView.findViewById(R.id.rvCategory);
 
             rvCategoryView.setLayoutManager(new LinearLayoutManager(getActivity()));
             rvCategoryView.setHasFixedSize(true);
@@ -102,30 +93,7 @@ public class CategoryFragment extends Fragment {
                     return false;
                 }
             });
-
             getCategories(apiService);
-        /*categoryAdapter = new CategoryAdapter(categoriesList, getActivity());
-        rvCategoryView.setAdapter(categoryAdapter);*/
-
-      /*  rvCategoryView.addOnItemTouchListener(new CategoryRecyclerTouchListener(getActivity(), rvCategoryView,
-                new CategoryClickListener() {
-                    @Override
-                    public void onClick(View view, int position) {
-                        Toast.makeText(getActivity(), "calling getShayaris()", Toast.LENGTH_SHORT).show();
-
-
-                      //   ShayariFragment shayariFragment = new ShayariFragment();
-                       // MainActivity mainActivity = new MainActivity();
-                       // mainActivity.replaceFrag(shayariFragment);
-
-                        //MainActivity mainActivity = new MainActivity();
-                       // mainActivity.getShayariByCatId(apiService, categoriesList.get(position).getCategory_id());
-                    }
-
-                    @Override
-                    public void onLongClick(View view, int position) {
-                    }
-                }));*/
         }
         return rootView;
     }
@@ -139,27 +107,31 @@ public class CategoryFragment extends Fragment {
         call.enqueue(new Callback<List<Categories>>() {
             @Override
             public void onResponse(Call<List<Categories>> call, Response<List<Categories>> response) {
-                Toast.makeText(getActivity(), "inside onResponse", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "inside onResponse : " + response.code(), Toast.LENGTH_SHORT).show();
+                if (response.code() == 200 && response.isSuccessful() && response.errorBody() == null) {
+                    tvError.setVisibility(View.GONE);
+                    if (response.body() != null) {
+                        for (int j = 0; j < response.body().size(); j++) {
+                            Categories categories = new Categories();
+                            categories.setCategory_id(response.body().get(j).getCategory_id());
+                            categories.setCategory_count(response.body().get(j).getCategory_count());
+                            categories.setCategory_title(response.body().get(j).getCategory_title());
+                            categories.setImg_url(response.body().get(j).getImg_url());
+                            categoriesList.add(categories);
+                        }
+                        for (int i = 0; i < categoriesList.size(); i++) {
+                            Log.d("ankitTAGreversed", "title : " + categoriesList.get(i).getCategory_title());
+                        }
 
-                if (response.body() != null) {
-                    for (int j = 0; j < response.body().size(); j++) {
-                        Categories categories = new Categories();
-                        categories.setCategory_id(response.body().get(j).getCategory_id());
-                        categories.setCategory_count(response.body().get(j).getCategory_count());
-                        categories.setCategory_title(response.body().get(j).getCategory_title());
-                        categories.setImg_url(response.body().get(j).getImg_url());
-                        categoriesList.add(categories);
+                        categoryAdapter = new CategoryAdapter(categoriesList, getActivity());
+                        rvCategoryView.setAdapter(categoryAdapter);
+
+                        pDialog.hide();
+
                     }
-                    for (int i = 0; i < categoriesList.size(); i++) {
-                        Log.d("ankitTAGreversed", "title : " + categoriesList.get(i).getCategory_title());
-                    }
-
-                    categoryAdapter = new CategoryAdapter(categoriesList, getActivity());
-                    rvCategoryView.setAdapter(categoryAdapter);
-
-                    pDialog.hide();
-
                 } else {
+                    tvError.setVisibility(View.VISIBLE);
+                    tvError.setText(getString(R.string.error_msg) + response.code() + " " + response.message());
                     pDialog.hide();
                     Toast.makeText(getActivity(), "null response recived", Toast.LENGTH_SHORT).show();
                 }
@@ -175,7 +147,6 @@ public class CategoryFragment extends Fragment {
                                         position, getActivity().getString(R.string.category_img) + position);
 
                                 Toast.makeText(getActivity(), "calling getShayaris()", Toast.LENGTH_SHORT).show();
-                                // getShayariByCatId(apiService, categoriesList.get(position).getCategory_id());
                                 catTitle = categoriesList.get(position).getCategory_title();
                                 catId = categoriesList.get(position).getCategory_id();
                                 ivTransition = (ImageView) view.findViewById(R.id.ivCatIcon);
@@ -185,22 +156,14 @@ public class CategoryFragment extends Fragment {
                                 transitionMap.put(getString(R.string.category_title) + position, tvTransition);
                                 transitionMap.put(getString(R.string.category_img) + position, ivTransition);
 
-                                // ShayariFragment shayariFragment = new ShayariFragment();
                                 Bitmap bitmap = ((BitmapDrawable) ivTransition.getDrawable()).getBitmap();
-
                                 Bundle bundle = new Bundle();
                                 bundle.putString("catTitle", catTitle);
                                 bundle.putInt("catId", catId);
-                                //  bundle.putString("catImgUrl", catImgUrl);
                                 bundle.putInt("catTransitionNamePos", position);
                                 bundle.putParcelable("bitmap", bitmap);
-                                // bundle.putParcelableArrayList("shayariArrayList", shayariList);
-
-                                //bundle.putString("categoryName", categoriesList.get();
                                 shayariFragment.setArguments(bundle);
-
                                 Utility.replaceFrag(getActivity(), shayariFragment, position, fm, transitionMap);
-
                             }
 
                             @Override
@@ -212,6 +175,8 @@ public class CategoryFragment extends Fragment {
             @Override
             public void onFailure(Call<List<Categories>> call, Throwable t) {
                 Toast.makeText(getActivity(), "inside onFailure", Toast.LENGTH_SHORT).show();
+                tvError.setVisibility(View.VISIBLE);
+                tvError.setText(t.toString());
                 Log.e("ankitTAG", t.toString());
                 pDialog.hide();
             }

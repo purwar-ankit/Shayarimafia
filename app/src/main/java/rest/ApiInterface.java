@@ -30,7 +30,6 @@ http://www.shayarimafia.com/app/all_shayari.php
 */
 
 public interface ApiInterface {
-
     @GET("scategory")
     Call<List<Categories>> getAllCategories();
 

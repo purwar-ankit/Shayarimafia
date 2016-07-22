@@ -53,7 +53,9 @@ public class SharedPreference {
         Log.d("sharedPrefs", " called remove fav " +" shayari: " + shayari.toString());
         List<Shayari> favorites = getFavorites(context);
         if (favorites != null) {
+            Log.d("sharedPrefsTAG"," before remove"+ favorites.size());
             favorites.remove(shayari);
+            Log.d("sharedPrefsTAG"," after remove"+ favorites.size());
             saveFavorites(context, favorites);
         }
     }

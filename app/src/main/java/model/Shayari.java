@@ -20,8 +20,6 @@ public class Shayari implements Parcelable {
     @SerializedName("title")
     private String title;
 
-
-
     public Shayari() {
     }
 
@@ -90,4 +88,16 @@ public class Shayari implements Parcelable {
         return "Shayari [id=" +id+ ", title=" + title + ", content="
                 + content + "]";
     }
-}
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Shayari)) {
+            return false;
+        }
+        Shayari other = (Shayari) o;
+        return content.equals(other.content) && title.equals(other.title) && id == other.id;
+    }
+
+    public int hashCode() {
+        return content.hashCode();
+    }}

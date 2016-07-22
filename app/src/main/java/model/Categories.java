@@ -97,4 +97,17 @@ public class Categories implements Parcelable {
         dest.writeInt(category_id);
         dest.writeString(img_url);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Categories)) {
+            return false;
+        }
+        Categories other = (Categories) o;
+        return category_title.equals(other.category_title) && img_url.equals(other.img_url) && category_count == other.category_count && category_id == other.category_id;
+    }
+
+    public int hashCode() {
+        return category_title.hashCode();
+    }
 }
